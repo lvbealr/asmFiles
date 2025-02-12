@@ -1,158 +1,162 @@
-parseConsole	proc
+parseConsole	proc	
+
+		mov di, 82h 
 		
-		mov di, 82h ; start of command line args
-		
-		; === GET WIDTH === ;
 		call skipSpaces
-		call getNumber
+		call parseNumber
 
 		cmp al, 78d
-		ja printError
+
+		ja printErrorMessage
 
 		mov [BORDER_WIDTH], byte ptr al
-
-		; === GET HEIGHT === ;
-		call skipSpaces 
-		call getNumber	
+		
+		call skipSpaces
+		call parseNumber
 
 		cmp al, 22d
-		ja printError
+
+		ja printErrorMessage
 
 		mov [BORDER_HEIGHT], byte ptr al
-
-		; === GET STYLE === ;
+		
 		call skipSpaces
-		call getNumber
+		call parseNumber
 
-		mov [BORDER_STYLE], byte ptr al
+		mov [BORDER_MODE], byte ptr al
 
-		; === GET PERS STYLE === ;
-		call skipSpaces ; go to first symbol
+		call skipSpaces
+		
 		xor ax, ax
 		mov ax, di
+
 		mov TEXT_POSITION, byte ptr al
 		
-		; ---------------------- ;
 		push di
 		xor cx, cx
-		
-		@@next:
-		call skipSpaces		 ; go to next line
-		call textLength	 	 ; count len(text)
-		cmp  al, BORDER_WIDTH
-		jae printError
 
-		inc cl			 ; increment lines count
+		@@next:
+		call skipSpaces
+		call textLength
 		
-		mov ax, di		 ; position in cmd
-		mov bx, 80h	
+		cmp al, BORDER_WIDTH
+		jae printErrorMessage
+
+		inc cl
+
+		mov ax, di
+		mov bx, 80h
+		
 		sub ax, 128d
+	
 		cmp al, byte ptr [bx]
-		jae @@end_loop
+		jae @@endLoop
 
 		jmp @@next
-		@@end_loop:
-			pop di
-			mov LINE_COUNT, cl
-			cmp cl, BORDER_HEIGHT
-			ja printError
+
+		@@endLoop:
+		pop di
+
+		mov LINE_COUNT, cl
+		
+		cmp cl, BORDER_HEIGHT
+		ja printErrorMessage
 
 		ret
-		        endp
+		endp
 
 wordLength	proc
+
+		@@startCounterLoop:
+		cmp byte ptr [di], ' '
+		je @@endCounterLoop
+
+		inc di
 		
-		@@startLoop:
-			cmp byte ptr [di], ' '
-			je @@endLoop
-			
-			inc di
-			
-			jmp @@startLoop
-		
-		@@endLoop:
+		jmp @@startCounterLoop
+
+		@@endCounterLoop:
 
 		ret
-		    endp
+		endp
 
 textLength	proc
-		
+
 		mov ax, di
-		@@next:
-			cmp byte ptr [di], '$'
-			je @@end_loop
-			
-			inc di
-			cmp di, 255d
-			jae printError
 		
+		@@next:
+		cmp byte ptr [di], '$'
+		je @@endLoop
+
+		inc di
+	
+		cmp di, 255d
+		jae printErrorMessage
+
 		jmp @@next
-		@@end_loop:
-			push di
-			
-			sub di, ax
-			mov ax, di ; return value
-			
-			pop di
-			
-			inc di     ; go to next symbol
+		@@endLoop:
+
+		push di
+		
+		sub di, ax
+		mov ax, di
+
+		pop di
+		inc di
 
 		ret
-		    endp
+		endp
 
+parseNumber	proc
+		
+		mov bx, di
 
-getNumber	proc
-		
-		mov bx, di	; save start pos in bx
-		call wordLength ; set di in the end of number
-		
+		call wordLength
+
 		sub di, bx
 		mov cx, di
-		
-		mov di, bx	; set di in the start of number
+		mov di, bx
 
-		; -------------------------------------------- ;
-		cmp cx, 3d	; check len of number
-		jae printError
-		
-		cmp cx, 0d	; check len of number
-		jbe PrintError
-		
+		cmp cx, 3d
+		jae printErrorMessage
+
+		cmp cx, 0d
+		je  printErrorMessage
+
 		xor ax, ax
 
 		cmp cx, 2d
 		jne @@addLastPart
+
+		mov al, byte ptr [di]
+		sub al, '0'
 		
-		mov al, byte ptr [di] ; get first number code
-		sub al, '0'	      ; get first number value from code
-		mov ah, 10d	      ; mul first num to 10 and save in ah
+		mov ah, 10d
 		mul ah
 		mov ah, al
 
-		inc di		      ; go to next number
+		inc di
 		
 		@@addLastPart:
-			mov al, byte ptr [di] ; get next number code
-			sub al, '0'	      ; get next number value from code
-			
-			add al, ah	      ; add first number with second
-			
-			inc di		      ; go to the next number
-
+		mov al, byte ptr [di]
+		sub al, '0'
+		add al, ah
+		
+		inc di
+		
 		ret
-		    endp
+		endp
 
 skipSpaces	proc
 
-		
 		@@next:
-		cmp byte ptr[di], ' '
-
+		cmp byte ptr [di], ' '
 		jne @@end
-			inc di
-		jmp @@next
 
+		inc di
+
+		jmp @@next
 		@@end:
-		
+
 		ret
-		    endp
+		endp

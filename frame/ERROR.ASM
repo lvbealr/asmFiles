@@ -1,5 +1,6 @@
-printError:	mov ah, 09h
-		mov dx, offset ERROR_MESSAGE
-		int 21h
+printErrorMessage:
+	mov ah, 09h 
+	mov dx, offset ERROR_MESSAGE
+	int 21h
 
-		jmp exitProgram
+	jmp exitProgramm

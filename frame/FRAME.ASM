@@ -1,302 +1,315 @@
 .model tiny
 .386
-.code
+.code 
 org 100h
 locals @@
 
-WBCK_BFRONT equ 70h
-BBCK_WFRONT equ 07h 
+WBACK_BFRONT equ 70h
+BBACK_WFRONT equ 07h
 
-; ////////////////////////////////////////////////// ;
+Start:
+jmp main                ; jump to the main function
 
-Start:	jmp main
-		
-main	proc
+; The main function
+main                proc
 
-		mov bx, 0b800h    ; VIDEOMEM
-		mov es, bx
+    mov bx, 0b800h          ; Puts to es offset to a vmem adress
+    mov es, bx
 
-		call parseConsole ; get params from console
-		
-		@@mainLoop:
-			call clearDisplay ; clear display before show
-			call drawFrame    ; display frame on the screen
-			call clearDisplay ; clear display after show
-		jmp @@mainLoop
-	
-exitProgram:	mov ax, 4c00h
-				int 21h
-		
-		endp
+    call parseConsole             ; Parse data from command line
 
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+    @@mainLoop:
 
-clearDisplay 	proc
-	
-				mov ax, 0900h
-				mov dx, offset BACKGROUND
+    call clearDisplay              ; clearDisplay monitor
 
-				int 21h		
+    call drawFrame      ; Display border
 
-				ret
-				endp
+    call checkInput        ; Check input(pressed keys)
 
-; ================================================== ; 
-include DATA.ASM
-include ERROR.ASM
-include PARSER.ASM
-; ================================================== ;
+    call clearDisplay              ; clearDisplay monitor
 
-printString	proc
-		
-			mov cl, [di] ; get count of symbols
-			inc di
-			push ax
+    jmp @@mainLoop
 
-			sub si, cx
+;---------------------------------------------------------------
+exitProgramm:
+    mov ax, 4c00h           ; Terminate programm
+    int 21h 
+                    endp
 
-			mov ax, si   ; check alignment of symbols
-			and ax, 1
-			add si, ax
+; Function that clean monitor
+; Destroy           AH, DX
+clearDisplay               proc
+    mov ah, 09h
+    mov dx, offset CLEAN_MONITOR
+    int 21h
 
-			add si, 2d
+    ret
+                    endp
+;---------------------------------------------------------------
+include data.asm
+;---------------------------------------------------------------
+include input.asm
+;---------------------------------------------------------------
+include error.asm
+;---------------------------------------------------------------
+include parser.asm
+;---------------------------------------------------------------
 
-			pop ax
+; Write text line to display
+; Entry             AH - color atribute
+;                   SI - offset of memory
+;                   DI - pointer to string
+; Assumes           ES = 0b800h
+; Destr             SI, CX, DI, AX
+printString        proc
+    mov cl, [di]       ; get count of symbols        
+    inc di
+    push ax
+    
+    sub si, cx
 
-			@@next:
-				mov al, byte ptr [di]
-				mov es:[si], ax
-				add si, 2d
-				inc di
+    mov ax, si         ; check aligment of symbols
+    and ax, 1
+    add si, ax
 
-			loop @@next
+    add si, 2d
 
-			ret
-			endp
+    pop ax
+    @@next:
+        mov al, byte ptr [di]
+        mov es:[si], ax
+        add si, 2d
+        inc di
+    loop @@next
 
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+    ret
+                    endp
 
-printLine	proc
-		
-			mov al, byte ptr [di] ; write first symbol
-			mov es:[bx], ax
-			add bx, 2d
-			inc di
+; Write 3 special symbols
+; Entry             AH - background color atribute
+;                   DI - special line position
+;                   CX - count of central symbols
+;                   BX - offset of memory
+; Assumes           ES = 0b800h
+; Destr             AL, DI, CX
+printLine          proc
+    mov al, byte ptr [di]               ; write first symbol
+    mov es:[bx], ax
+    add bx, 2d
+    inc di
 
-			mov al, byte ptr [di] ; write second N symbols of line
-			@@next:
-				mov es:[bx], ax
-				add bx, 2d
-			loop @@next
+    mov al, byte ptr [di]               ; Write second N symbols of line
+    @@next:
+        mov es:[bx], ax
+        add bx, 2d
+    loop @@next
+    inc di
 
-			inc di
+    mov al, byte ptr [di]               ; write first symbol
+    mov es:[bx], ax
+    add bx, 2d
+    inc di
 
-			mov al, byte ptr [di] ; write last sym
-			mov es:[bx], ax
-			add bx, 2d
-			inc di
+    ret
+                    endp
 
-			ret
-			endp
-		
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+; Shift to the next line function
+; Entry             BX - memory adress
+; Destr             BX, AX
+; Return            BX position of the next line
+shiftToNextLine  proc
+    xor ax, ax
+    mov al, BORDER_WIDTH
+    sub bx, ax
+    sub bx, ax
+    sub bx, 4d
+    add bx, 160d
+    ret
+                    endp
 
-shiftToNextLine	proc
-		
-				xor ax, ax
-				mov al, BORDER_WIDTH
-				sub bx, ax
-				sub bx, ax
-				sub bx, 4d
-				add bx, 160d
+; Write border in the midle on the monitor
+; Entry             CX - width of the border
+;                   AH - height of the border
+; Assumes           ES = 0b800h
+; Destr             CX, AX, BX, SI, DI, DX
+drawFrame       proc
+    xor cx, cx
+    mov cl, BORDER_HEIGHT       ; get border height
 
-				ret
-				endp
+    mov ax, 25d                 ; 25 - border height
+    sub ax, cx
 
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+    shr ax, 1                   ; ax/2
+    mov bx, 160d                
 
-drawFrame	proc
-	
-		xor cx, cx
-		mov cl, BORDER_HEIGHT ; get border height
+    mul bx                      ; ax * 160
 
-		mov ax, 25d	      ; 25 - border height
-		sub ax, cx
+    mov bx, ax                  ; get start position
 
-		shr ax, 1	      ; ax / 2
-		mov bx, 160d
+;------------------------------------------------------
+;get position by OX
+    xor cx, cx
+    mov cl, BORDER_WIDTH        ; get border width in cl
 
-		mul bx		      ; ax * 160
+    mov ax, 80d                 ; 80 - BORDER_WIDTH
+    sub ax, cx
+;--------------------------------
+    push bx                     ; save bx
 
-		mov bx, ax	      ; get start pos
-		; --------------------------------------- ;
-		; get pos by oX
-		xor cx, cx
-		mov cl, BORDER_WIDTH
-		
-		mov ax, 80d
-		sub ax, cx
-		; --------------------------------------- ;
-		push bx
+    mov bx, ax                  ; this part for aligment by even numbers adress
+    and bx, 1
+    add ax, bx
 
-		mov bx, ax
-		and bx, 1	; alignment by even addresses
-		add ax, bx
+    pop bx                      ; repair bx
+;--------------------------------
+    add bx, ax
+    sub bx, 2d
 
-		pop bx
-		; --------------------------------------- ;
-		add bx, ax
-		sub bx, 2d
-		
-		mov si, bx	; get center
-		xor ax, ax
-		mov al, BORDER_WIDTH
-		add si, ax
-		; --------------------------------------- ;
-		call selectStyle
-		
-		mov ah, WBCK_BFRONT ; write first line
-		call printLine
-		push di
+    mov si, bx          ; get center of border
+    xor ax, ax
+    mov al, BORDER_WIDTH
+    add si, ax
 
-		;mov di, offset DEFAULT_MESSAGE
-		;call printString
-		pop di
+;------------------------------------------------
 
-		mov dl, BORDER_HEIGHT
-		
-		xor cx, cx
-		mov cl, TEXT_POSITION
-		mov si, cx
+    call selectMode                    ; set border style
 
-		@@next:
-			dec dl
+    mov ah, WBACK_BFRONT      ; Write first line
+    call printLine
+    push di
 
-			call shiftToNextLine
-			mov cl, BORDER_WIDTH
-		; -------------------------------------- ;
-			mov ah, BORDER_HEIGHT
-			sub ah, dl
-			cmp ah, CURRENT_LINE
-			je setCurrentColor
-			mov ah, WBCK_BFRONT
-		
-			RETURN_TO_LOOP:
-		; -------------------------------------- ;
-			call printLine
-			
-			mov al, BORDER_HEIGHT ; get curr line number
-			sub al, dl
-			
-			cmp al, LINE_COUNT    ; currLine > LINE_COUNT
-			ja @@skipTextLine
+    mov di, offset TABLE_NAME           ; write border name
+    call printString
+    pop di
 
-			@@skipNext:	      ; skip spaces before string
-				cmp [si], byte ptr ' '
-				jne @@skipEnd
-					inc si
-				jmp @@skipNext
-			
-			@@skipEnd:
-				push bx
-				
-				xor cx, cx
-				mov cl, BORDER_WIDTH ; get print pos
-				sub bx, cx
-				sub bx, cx
-			
-				call printTextLineIntoBox
+    mov dl, BORDER_HEIGHT               ; write border body
 
-				pop bx
-				@@skipTextLine:
+    xor cx, cx
+    mov cl, TEXT_POSITION
+    mov si, cx
 
-				sub di, 3d
+    @@next:
+        dec dl
 
-		
-		cmp dl, 0
-		jne @@next
+        call shiftToNextLine
+        mov cl, BORDER_WIDTH
 
-		call shiftToNextLine
-		add di, 3d
-		
-		mov ah, WBCK_BFRONT; print last line
-		mov cl, BORDER_WIDTH
-		call printLine
+;-------------------------------------------------------------
+        mov ah, BORDER_HEIGHT           ; Select line color
+        sub ah, dl
+        cmp ah, CURRENT_LINE
+        je setCurrentColor
+        mov ah, WBACK_BFRONT
+        returnToLoop:
+;-------------------------------------------------------------
 
-		ret
-			endp
-			
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+        call printLine
 
-setCurrentColor:	mov ah, BBCK_WFRONT
-					jmp RETURN_TO_LOOP
+        mov al, BORDER_HEIGHT           ; get current line number
+        sub al, dl
 
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+        cmp al, LINE_COUNT              ; current line > LINE_COUNT
+        ja @@skipTextLine
 
-selectStyle	proc
-		
-		mov ah, [BORDER_STYLE]
-		
-		cmp ah, 1d
-			je @FIRST_STYLE
-		cmp ah, 2d
-			je @SECOND_STYLE
-		cmp ah, 3d
-			je @THIRD_STYLE
+        @@skipNext:                    ; skip spaces before string
+        cmp [si], byte ptr ' '
+        jne @@skipEnd
+            inc si
+        jmp @@skipNext
+        @@skipEnd:
 
-		mov di, offset FIRST_BORDER
-		ret
+        push bx                         ; Save bx
 
-		@FIRST_STYLE:
-			mov di, offset FIRST_BORDER
-			ret
-		@SECOND_STYLE:
-			mov di, offset SECOND_BORDER
-			ret
-		@THIRD_STYLE:
-			mov di, offset THIRD_BORDER
-			ret
-		
-			endp
+        xor cx, cx
+        mov cl, BORDER_WIDTH            ; get write position
+        sub bx, cx
+        sub bx, cx
 
-; ================================================== ;
-; .................................................. ;
-; ================================================== ;
+        call printTextLineIntoBox
 
-printTextLineIntoBox	proc
-		
-			@@next:
-				cmp [si], byte ptr '$'
-				je @@endLoop
+        pop bx                          ; Repair bx
+        @@skipTextLine:
 
-				mov al, byte ptr [si]
-				mov es:[bx], ax
-				
-				add bx, 2d
-				inc si
-			
-			jmp @@next
+        sub di, 3d
 
-			@@endLoop:
-			
-			inc si	; go to next symbol after '$'
-		
-			ret
-						endp
+    cmp dl, 0
+    jne @@next
+
+    call shiftToNextLine
+    add di, 3d
+                                     
+    mov ah, WBACK_BFRONT      ; write last line
+    mov cl, BORDER_WIDTH
+    call printLine
+
+    ret
+                    endp
+
+; Function set Black background and white text
+; Destroy           AH
+setCurrentColor:  
+    mov ah, BBACK_WFRONT
+    jmp returnToLoop
 
 
-end		Start
+; Select border mode by code //TODO: a[i]
+; Destroy           AH
+; Return            DI - the position of the first symbol of selected border
+selectMode         proc
+    mov ah, [BORDER_MODE]
 
-; ////////////////////////////////////////////////// ;
+    cmp ah, 1d
+        je @FIRST_MODE
+    cmp ah, 2d
+        je @SECOND_MODE
+    cmp ah, 3d
+        je @THIRD_MODE
+    cmp ah, 4d
+	je @FOURTH_MODE
+
+
+    mov di, offset FIRST_BORDER
+    ret
+
+    @FIRST_MODE:
+        mov di, offset FIRST_BORDER
+        ret
+    @SECOND_MODE:
+        mov di, offset SECOND_BORDER
+        ret
+    @THIRD_MODE:
+        mov di, offset THIRD_BORDER
+        ret
+
+    @FOURTH_MODE:
+	mov di, offset FOURTH_BORDER
+	ret
+
+                    endp
+
+; Write text from input
+; Entry             BX - position
+; Asumes            ES = 0b800h
+; Destroy           SI, BX
+printTextLineIntoBox proc
+
+    @@next:
+    cmp [si], byte ptr '$'               ; Check line terminator
+    je @@endLoop
+
+    mov al, byte ptr [si]
+    mov es:[bx], ax
+
+    add bx, 2d
+    inc si
+
+    jmp @@next
+
+    @@endLoop:
+
+    inc si                      ; go to next symbol after $
+    
+    ret
+                    endp
+
+end Start
