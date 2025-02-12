@@ -1,0 +1,12 @@
+; TODO (function list):
+; 0)  clearDisplay - DONE
+; 1)  parseConsole
+; 2)  skipSpaces   - DONE
+; 3)  findCenter
+; 4)  draw a top line
+; 5)  draw an internal line
+; 6)  draw a bottom line
+; 7)  zoomFrame (15H - 86H = pause)
+; 8)  go to center and to left border to print text
+; 9)  printText over the frame
+; 10) array with prepared styles
