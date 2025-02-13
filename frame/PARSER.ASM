@@ -36,6 +36,22 @@ parseConsole	proc
 		ja printErrorMessage	; print error message
 
 		mov [BORDER_HEIGHT], byte ptr al ; *BORDER_HEIGHT = AL
+		
+		; ############################################# ;
+		; ________________ GET COLORS _________________ ;
+		; ############################################# ;
+
+		call skipSpaces
+		call parseNumber
+
+		mov [WBACK_BFRONT], byte ptr al
+		
+		call skipSpaces
+		call parseNumber
+
+		mov [BBACK_WFRONT], byte ptr al
+		
+		; ---------------------------- ;
 			
 		; ############################################# ;
 		; _______________ GET STYLE CODE ______________ ;

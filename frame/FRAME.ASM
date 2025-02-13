@@ -6,8 +6,8 @@ locals @@
 
 ; _____ DEFINE _____ ;
 
-WBACK_BFRONT equ 50h ; black letters on white background
-BBACK_WFRONT equ 05h ; white letters on black background
+;WBACK_BFRONT equ 50h ; black letters on white background
+;BBACK_WFRONT equ 05h ; white letters on black background
 ; __________________ ;
 
 ; ################################################################## ;

@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 1
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 1
 frame.asm
 
 
@@ -11,8 +11,8 @@ frame.asm
       6
       7					 ; _____ DEFINE	_____ ;
       8
-      9		  =0050			 WBACK_BFRONT equ 50h ;	black letters on white background
-     10		  =0005			 BBACK_WFRONT equ 05h ;	white letters on black background
+      9					 ;WBACK_BFRONT equ 50h ; black letters on white	background
+     10					 ;BBACK_WFRONT equ 05h ; white letters on black	background
      11					 ; __________________ ;
      12
      13					 ; ################################################################## ;
@@ -35,10 +35,10 @@ frame.asm
      30
      31	    010B				 @@mainLoop:
      32
-     33	    010B  E8 0114			 call clearDisplay	 ; clear monitor display
-     34	    010E  E8 0165			 call drawFrame		 ; draw	frame on display
-     35	    0111  E8 00D7			 call checkInput	 ; check user is keystroking
-     36	    0114  E8 010B			 call clearDisplay	 ; clear monitor display
+     33	    010B  E8 0126			 call clearDisplay	 ; clear monitor display
+     34	    010E  E8 0177			 call drawFrame		 ; draw	frame on display
+     35	    0111  E8 00E9			 call checkInput	 ; check user is keystroking
+     36	    0114  E8 011D			 call clearDisplay	 ; clear monitor display
      37
      38	    0117  EB F2				 jmp @@mainLoop
      39
@@ -60,7 +60,7 @@ frame.asm
 1    55	    0014  2B 2D	2B 7C 20 7C 2B+		 THIRD_BORDER	 db "+-+| |+-+"
      56		  2D 2B
 1    57	    001D  03 5F	03 03 00 03 03+		 FOURTH_BORDER	 db 03h, 5fh, 03h, 03h,	00h, 03h, 03h, 2dh, 03h
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 2
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 2
 frame.asm
 
 
@@ -69,718 +69,737 @@ frame.asm
 1    59	    0026  07 4D	45 4F 57 20 3C+		 TABLE_NAME	 db 7d,"MEOW <3", '$'
      60		  33 24
 1    61
-1    62	    002F  09 24				 USER_BORDER	 db 09d, '$'
-1    63	    0031  0A				 BORDER_WIDTH	 db 10d
-1    64	    0032  0A				 BORDER_HEIGHT	 db 10d
-1    65	    0033  01				 BORDER_MODE	 db 01d
-1    66	    0034  00				 TEXT_POSITION	 db 00d
-1    67	    0035  01				 CURRENT_LINE	 db 01d
-1    68	    0036  00				 LINE_COUNT	 db 00d
-1    69
-1    70	    0037  45 72	72 6F 72 21 24		 ERROR_MESSAGE	 db "Error!", '$'
-1    71	    003E  0780*(20) 24			 CLEAN_MONITOR	 db 80*24 dup('	'), '$'
-1    72	    07BF			 .code
-     73					 include error.asm	 ;
-1    74					 ; ============================================================= ;
-1    75					 ; Describe:	 Print error message on	display	(21H 09H)	 ;
-1    76					 ; Entry:	 None						 ;
-1    77					 ; Exit:	 None						 ;
-1    78					 ; Destroy:	 AH, DX						 ;
-1    79					 ; ============================================================= ;
-1    80
-1    81	    011E			 printErrorMessage:
-1    82	    011E  B4 09				 mov ah, 09h			 ; 21H 09H - Display text
-1    83	    0120  BA 0037r			 mov dx, offset	ERROR_MESSAGE	 ; dx =	&ERROR_MESSAGE
-1    84	    0123  CD 21				 int 21h			 ; SYSCALL 21H
-1    85
-1    86	    0125  EB F2				 jmp exitProgramm		 ; jump	to exitProgramm
-     87					 include parser.asm	 ;
-1    88					 ; ===================================================================== ;
-1    89					 ; Describe:	 Parsing parameters from command-line (PSP x0082h)	 ;
-1    90					 ; Entry:	 None							 ;
-1    91					 ; Exit:	 None							 ;
-1    92					 ; Destroy:	 AX, BX, DI						 ;
-1    93					 ; ===================================================================== ;
-1    94
-1    95	    0127			 parseConsole	 proc
-1    96
-1    97	    0127  BF 0082				 mov di, 82h		 ; PSP address x0082h -	cmd starts
-1    98
-1    99							 ; ############################################# ;
-1   100							 ; ______________ GET BORDER WIDTH _____________ ;
-1   101							 ; ############################################# ;
-1   102
-1   103	    012A  E8 00B3				 call skipSpaces	 ; skip	spaces
-1   104	    012D  E8 007B				 call parseNumber	 ; parse number	from cmd
-1   105										 ; put WIDTH to	AL
-1   106
-1   107	    0130  3C 4E					 cmp al, 78d		 ; if AL > 78
-1   108										 ; (check if width is valid)
-1   109	    0132  77 EA					 ja printErrorMessage	 ; print error message
-1   110
-1   111	    0134  A2 0031r				 mov [BORDER_WIDTH], byte ptr al ; *BORDER_WIDTH = AL
-1   112
-1   113							 ; ############################################# ;
-1   114							 ; ______________ GET BORDER HEIGHT ____________ ;
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 3
+1    62	    002F  02				 WBACK_BFRONT	 db 02d
+1    63	    0030  02				 BBACK_WFRONT	 db 02d
+1    64
+1    65	    0031  09 24				 USER_BORDER	 db 09d, '$'
+1    66	    0033  0A				 BORDER_WIDTH	 db 10d
+1    67	    0034  0A				 BORDER_HEIGHT	 db 10d
+1    68	    0035  01				 BORDER_MODE	 db 01d
+1    69	    0036  00				 TEXT_POSITION	 db 00d
+1    70	    0037  01				 CURRENT_LINE	 db 01d
+1    71	    0038  00				 LINE_COUNT	 db 00d
+1    72
+1    73	    0039  45 72	72 6F 72 21 24		 ERROR_MESSAGE	 db "Error!", '$'
+1    74	    0040  0640*(20) 24			 CLEAN_MONITOR	 db 80*20 dup('	'), '$'
+1    75	    0681			 .code
+     76					 include error.asm	 ;
+1    77					 ; ============================================================= ;
+1    78					 ; Describe:	 Print error message on	display	(21H 09H)	 ;
+1    79					 ; Entry:	 None						 ;
+1    80					 ; Exit:	 None						 ;
+1    81					 ; Destroy:	 AH, DX						 ;
+1    82					 ; ============================================================= ;
+1    83
+1    84	    011E			 printErrorMessage:
+1    85	    011E  B4 09				 mov ah, 09h			 ; 21H 09H - Display text
+1    86	    0120  BA 0039r			 mov dx, offset	ERROR_MESSAGE	 ; dx =	&ERROR_MESSAGE
+1    87	    0123  CD 21				 int 21h			 ; SYSCALL 21H
+1    88
+1    89	    0125  EB F2				 jmp exitProgramm		 ; jump	to exitProgramm
+     90					 include parser.asm	 ;
+1    91					 ; ===================================================================== ;
+1    92					 ; Describe:	 Parsing parameters from command-line (PSP x0082h)	 ;
+1    93					 ; Entry:	 None							 ;
+1    94					 ; Exit:	 None							 ;
+1    95					 ; Destroy:	 AX, BX, DI						 ;
+1    96					 ; ===================================================================== ;
+1    97
+1    98	    0127			 parseConsole	 proc
+1    99
+1   100	    0127  BF 0082				 mov di, 82h		 ; PSP address x0082h -	cmd starts
+1   101
+1   102							 ; ############################################# ;
+1   103							 ; ______________ GET BORDER WIDTH _____________ ;
+1   104							 ; ############################################# ;
+1   105
+1   106	    012A  E8 00C5				 call skipSpaces	 ; skip	spaces
+1   107	    012D  E8 008D				 call parseNumber	 ; parse number	from cmd
+1   108										 ; put WIDTH to	AL
+1   109
+1   110	    0130  3C 4E					 cmp al, 78d		 ; if AL > 78
+1   111										 ; (check if width is valid)
+1   112	    0132  77 EA					 ja printErrorMessage	 ; print error message
+1   113
+1   114	    0134  A2 0033r				 mov [BORDER_WIDTH], byte ptr al ; *BORDER_WIDTH = AL
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 3
 frame.asm
 
 
 
-1   115							 ; ############################################# ;
-1   116
-1   117	    0137  E8 00A6				 call skipSpaces	 ; skip	spaces
-1   118	    013A  E8 006E				 call parseNumber	 ; parse number	from cmd
-1   119										 ; put HEIGHT to AL
-1   120
-1   121	    013D  3C 16					 cmp al, 22d		 ; if AL > 22
-1   122										 ; (check if height is valid)
-1   123	    013F  77 DD					 ja printErrorMessage	 ; print error message
-1   124
-1   125	    0141  A2 0032r				 mov [BORDER_HEIGHT], byte ptr al ; *BORDER_HEIGHT = AL
-1   126
-1   127							 ; ############################################# ;
-1   128							 ; _______________ GET STYLE CODE ______________ ;
-1   129							 ; ############################################# ;
-1   130
-1   131	    0144  E8 0099				 call skipSpaces	 ; skip	spaces
-1   132	    0147  E8 0061				 call parseNumber	 ; parse number	from cmd
-1   133										 ; put CODE to AL
-1   134
-1   135	    014A  A2 0033r				 mov [BORDER_MODE], byte ptr al	; *BORDER_MODE = AL
+1   115
+1   116							 ; ############################################# ;
+1   117							 ; ______________ GET BORDER HEIGHT ____________ ;
+1   118							 ; ############################################# ;
+1   119
+1   120	    0137  E8 00B8				 call skipSpaces	 ; skip	spaces
+1   121	    013A  E8 0080				 call parseNumber	 ; parse number	from cmd
+1   122										 ; put HEIGHT to AL
+1   123
+1   124	    013D  3C 16					 cmp al, 22d		 ; if AL > 22
+1   125										 ; (check if height is valid)
+1   126	    013F  77 DD					 ja printErrorMessage	 ; print error message
+1   127
+1   128	    0141  A2 0034r				 mov [BORDER_HEIGHT], byte ptr al ; *BORDER_HEIGHT = AL
+1   129
+1   130							 ; ############################################# ;
+1   131							 ; ________________ GET	COLORS _________________ ;
+1   132							 ; ############################################# ;
+1   133
+1   134	    0144  E8 00AB				 call skipSpaces
+1   135	    0147  E8 0073				 call parseNumber
 1   136
-1   137							 ; ############################################# ;
-1   138							 ; __________________ GET STYLE	________________ ;
-1   139							 ; ############################################# ;
-1   140
-1   141							 ; TODO	TODO TODO TODO TODO TODO TODO TODO TODO
-1   142
-1   143							 ; ############################################# ;
-1   144							 ; _________________ GET MESSAGE _______________ ;
-1   145							 ; ############################################# ;
-1   146
-1   147	    014D  E8 0090				 call skipSpaces	 ; skip	spaces,	go to first symbol
-1   148
-1   149	    0150  33 C0					 xor ax, ax		 ; AX =	0
-1   150	    0152  8B C7					 mov ax, di		 ; AX =	DI
-1   151
-1   152	    0154  A2 0034r				 mov TEXT_POSITION, byte ptr al	; TEXT_POSITION	= AL
+1   137	    014A  A2 002Fr				 mov [WBACK_BFRONT], byte ptr al
+1   138
+1   139	    014D  E8 00A2				 call skipSpaces
+1   140	    0150  E8 006A				 call parseNumber
+1   141
+1   142	    0153  A2 0030r				 mov [BBACK_WFRONT], byte ptr al
+1   143
+1   144							 ; ----------------------------	;
+1   145
+1   146							 ; ############################################# ;
+1   147							 ; _______________ GET STYLE CODE ______________ ;
+1   148							 ; ############################################# ;
+1   149
+1   150	    0156  E8 0099				 call skipSpaces	 ; skip	spaces
+1   151	    0159  E8 0061				 call parseNumber	 ; parse number	from cmd
+1   152										 ; put CODE to AL
 1   153
-1   154	    0157  57					 push di		 ; save	DI
-1   155	    0158  33 C9					 xor cx, cx		 ; CX =	0
-1   156
-1   157	    015A					 @@next:		 ; go to next line
-1   158	    015A  E8 0083				 call skipSpaces	 ; skip	spaces
-1   159	    015D  E8 002F				 call textLength	 ; get string length
-1   160										 ; put LENGTH to AL
+1   154	    015C  A2 0035r				 mov [BORDER_MODE], byte ptr al	; *BORDER_MODE = AL
+1   155
+1   156							 ; ############################################# ;
+1   157							 ; __________________ GET STYLE	________________ ;
+1   158							 ; ############################################# ;
+1   159
+1   160							 ; TODO	TODO TODO TODO TODO TODO TODO TODO TODO
 1   161
-1   162	    0160  3A 06	0031r				 cmp al, BORDER_WIDTH	 ; if AL >= BORDER_WIDTH
-1   163										 ; (check if msg length	is valid)
-1   164	    0164  73 B8					 jae printErrorMessage	 ; print error message
+1   162							 ; ############################################# ;
+1   163							 ; _________________ GET MESSAGE _______________ ;
+1   164							 ; ############################################# ;
 1   165
-1   166	    0166  FE C1					 inc cl			 ; increment count of lines
+1   166	    015F  E8 0090				 call skipSpaces	 ; skip	spaces,	go to first symbol
 1   167
-1   168	    0168  8B C7					 mov ax, di		 ; AX =	DX  ; check pos	in cmd
-1   169										 ; (now	DI at start of message)
-1   170	    016A  BB 0080				 mov bx, 80h		 ; BX =	80h
-1   171
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 4
+1   168	    0162  33 C0					 xor ax, ax		 ; AX =	0
+1   169	    0164  8B C7					 mov ax, di		 ; AX =	DI
+1   170
+1   171	    0166  A2 0036r				 mov TEXT_POSITION, byte ptr al	; TEXT_POSITION	= AL
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 4
 frame.asm
 
 
 
-1   172	    016D  2D 0008				 sub ax, 08h		 ; AX -= 128 (cmd psp offset: 81-FF, size: 127b)
-1   173
-1   174	    0170  3A 07					 cmp al, byte ptr [bx]	 ; if AL >= *BX
-1   175										 ; (check pos in PSP)
-1   176	    0172  73 04	90 90				 jae @@endLoop		 ; break
-1   177
-1   178	    0176  EB E2					 jmp @@next		 ; get next argument (message also mb)
-1   179
-1   180	    0178					 @@endLoop:
-1   181	    0178  5F					 pop di			 ; restore DI
-1   182
-1   183	    0179  88 0E	0036r				 mov LINE_COUNT, cl	 ; LINE_COUNT =	CL
+1   172
+1   173	    0169  57					 push di		 ; save	DI
+1   174	    016A  33 C9					 xor cx, cx		 ; CX =	0
+1   175
+1   176	    016C					 @@next:		 ; go to next line
+1   177	    016C  E8 0083				 call skipSpaces	 ; skip	spaces
+1   178	    016F  E8 002F				 call textLength	 ; get string length
+1   179										 ; put LENGTH to AL
+1   180
+1   181	    0172  3A 06	0033r				 cmp al, BORDER_WIDTH	 ; if AL >= BORDER_WIDTH
+1   182										 ; (check if msg length	is valid)
+1   183	    0176  73 A6					 jae printErrorMessage	 ; print error message
 1   184
-1   185	    017D  3A 0E	0032r				 cmp cl, BORDER_HEIGHT	 ; if CL > BORDER_HEIGHT
-1   186										 ; (check lines	number)
-1   187	    0181  77 9B					 ja printErrorMessage	 ; print error message
-1   188
-1   189	    0183  C3					 ret
-1   190	    0184					 endp
-1   191
-1   192					 ; ===================================================================== ;
-1   193					 ; Describe:	 Calculate length of 'non-empty	word' in command-line	 ;
-1   194					 ; Entry:	 (assumed) DI -	start position				 ;
-1   195					 ; Exit:	 (assumed) DI -	end   position (first '	' after	word)	 ;
-1   196					 ; Destroy:	 None							 ;
-1   197					 ; ===================================================================== ;
+1   185	    0178  FE C1					 inc cl			 ; increment count of lines
+1   186
+1   187	    017A  8B C7					 mov ax, di		 ; AX =	DX  ; check pos	in cmd
+1   188										 ; (now	DI at start of message)
+1   189	    017C  BB 0080				 mov bx, 80h		 ; BX =	80h
+1   190
+1   191	    017F  2D 0008				 sub ax, 08h		 ; AX -= 128 (cmd psp offset: 81-FF, size: 127b)
+1   192
+1   193	    0182  3A 07					 cmp al, byte ptr [bx]	 ; if AL >= *BX
+1   194										 ; (check pos in PSP)
+1   195	    0184  73 04	90 90				 jae @@endLoop		 ; break
+1   196
+1   197	    0188  EB E2					 jmp @@next		 ; get next argument (message also mb)
 1   198
-1   199	    0184			 wordLength	 proc
-1   200
-1   201	    0184					 @@startCounterLoop:	 ; do while *di	!= ' '
-1   202	    0184  80 3D	20				 cmp byte ptr [di], ' '
-1   203	    0187  74 05	90 90				 je @@endCounterLoop
-1   204
-1   205	    018B  47					 inc di			 ; increment pos in cmd
-1   206
-1   207	    018C  EB F6					 jmp @@startCounterLoop	 ; repeat
-1   208
-1   209	    018E					 @@endCounterLoop:	 ; return
+1   199	    018A					 @@endLoop:
+1   200	    018A  5F					 pop di			 ; restore DI
+1   201
+1   202	    018B  88 0E	0038r				 mov LINE_COUNT, cl	 ; LINE_COUNT =	CL
+1   203
+1   204	    018F  3A 0E	0034r				 cmp cl, BORDER_HEIGHT	 ; if CL > BORDER_HEIGHT
+1   205										 ; (check lines	number)
+1   206	    0193  77 89					 ja printErrorMessage	 ; print error message
+1   207
+1   208	    0195  C3					 ret
+1   209	    0196					 endp
 1   210
-1   211	    018E  C3					 ret
-1   212	    018F					 endp
-1   213					 ; ============================================================= ;
-1   214					 ; Describe:	 Calculates length of message in command-line	 ;
-1   215					 ; Entry:	 (assumed) DI -	start position			 ;
-1   216					 ; Exit:	 DI - end of message, AX - count of symbols	 ;
-1   217					 ; Destroy:	 None						 ;
-1   218					 ; ============================================================= ;
+1   211					 ; ===================================================================== ;
+1   212					 ; Describe:	 Calculate length of 'non-empty	word' in command-line	 ;
+1   213					 ; Entry:	 (assumed) DI -	start position				 ;
+1   214					 ; Exit:	 (assumed) DI -	end   position (first '	' after	word)	 ;
+1   215					 ; Destroy:	 None							 ;
+1   216					 ; ===================================================================== ;
+1   217
+1   218	    0196			 wordLength	 proc
 1   219
-1   220	    018F			 textLength	 proc
-1   221
-1   222	    018F  8B C7					 mov ax, di		 ; AX =	DI
+1   220	    0196					 @@startCounterLoop:	 ; do while *di	!= ' '
+1   221	    0196  80 3D	20				 cmp byte ptr [di], ' '
+1   222	    0199  74 05	90 90				 je @@endCounterLoop
 1   223
-1   224	    0191					 @@next:		 ; do while *di	!= '$'
-1   225	    0191  80 3D	24				 cmp byte ptr [di], '$'
-1   226	    0194  74 0D	90 90				 je @@endLoop
+1   224	    019D  47					 inc di			 ; increment pos in cmd
+1   225
+1   226	    019E  EB F6					 jmp @@startCounterLoop	 ; repeat
 1   227
-1   228	    0198  47					 inc di			 ; increment pos in cmd
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 5
+1   228	    01A0					 @@endCounterLoop:	 ; return
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 5
 frame.asm
 
 
 
 1   229
-1   230	    0199  81 FF	00FF				 cmp di, 255d		 ; if DI >= 255
-1   231	    019D  0F 83	FF7D				 jae printErrorMessage	 ; check if end	of PSP isn't reached
-1   232
-1   233	    01A1  EB EE					 jmp @@next		 ; repeat
-1   234
-1   235	    01A3					 @@endLoop:
-1   236
-1   237	    01A3  57					 push di		 ; save	DI
+1   230	    01A0  C3					 ret
+1   231	    01A1					 endp
+1   232					 ; ============================================================= ;
+1   233					 ; Describe:	 Calculates length of message in command-line	 ;
+1   234					 ; Entry:	 (assumed) DI -	start position			 ;
+1   235					 ; Exit:	 DI - end of message, AX - count of symbols	 ;
+1   236					 ; Destroy:	 None						 ;
+1   237					 ; ============================================================= ;
 1   238
-1   239	    01A4  2B F8					 sub di, ax		 ; DI -= AX (end pos - start pos + 1)
-1   240	    01A6  8B C7					 mov ax, di		 ; AX =	DI
-1   241
-1   242	    01A8  5F					 pop di			 ; restore DI
-1   243	    01A9  47					 inc di			 ; DI++	(go to next symbol after msg)
-1   244
-1   245	    01AA  C3					 ret
-1   246	    01AB					 endp
-1   247
-1   248					 ; ============================================= ;
-1   249					 ; Describe:	 Get decimal number from a cmd	 ;
-1   250					 ; Entry:	 (assumed) DI -	start position	 ;
-1   251					 ; Exit:	 AL - the number		 ;
-1   252					 ; Destroy:	 CX, BX				 ;
-1   253					 ; ============================================= ;
-1   254
-1   255	    01AB			 parseNumber	 proc
-1   256
-1   257	    01AB  8B DF					 mov bx, di		 ; BX =	DI
-1   258
-1   259	    01AD  E8 FFD4				 call wordLength	 ; put END POSITION to DI
+1   239	    01A1			 textLength	 proc
+1   240
+1   241	    01A1  8B C7					 mov ax, di		 ; AX =	DI
+1   242
+1   243	    01A3					 @@next:		 ; do while *di	!= '$'
+1   244	    01A3  80 3D	24				 cmp byte ptr [di], '$'
+1   245	    01A6  74 0D	90 90				 je @@endLoop
+1   246
+1   247	    01AA  47					 inc di			 ; increment pos in cmd
+1   248
+1   249	    01AB  81 FF	00FF				 cmp di, 255d		 ; if DI >= 255
+1   250	    01AF  0F 83	FF6B				 jae printErrorMessage	 ; check if end	of PSP isn't reached
+1   251
+1   252	    01B3  EB EE					 jmp @@next		 ; repeat
+1   253
+1   254	    01B5					 @@endLoop:
+1   255
+1   256	    01B5  57					 push di		 ; save	DI
+1   257
+1   258	    01B6  2B F8					 sub di, ax		 ; DI -= AX (end pos - start pos + 1)
+1   259	    01B8  8B C7					 mov ax, di		 ; AX =	DI
 1   260
-1   261	    01B0  2B FB					 sub di, bx		 ; DI -= BX (end pos - start pos + 1)
-1   262	    01B2  8B CF					 mov cx, di		 ; CX =	DI (CX - count of digits)
-1   263	    01B4  8B FB					 mov di, bx		 ; DI =	BX
-1   264
-1   265	    01B6  83 F9	03				 cmp cx, 3d		 ; if CX >= 3
-1   266										 ; (check count	of digits)
-1   267	    01B9  0F 83	FF61				 jae printErrorMessage	 ; print error message
-1   268
-1   269	    01BD  83 F9	00				 cmp cx, 0d		 ; if CX == 0
-1   270										 ; (check count	of digits)
-1   271	    01C0  0F 84	FF5A				 je  printErrorMessage	 ; print error message
-1   272
-1   273	    01C4  33 C0					 xor ax, ax		 ; AX =	0
-1   274
-1   275	    01C6  83 F9	02				 cmp cx, 2d		 ; if CX != 2
-1   276										 ; (check count	of digits)
-1   277	    01C9  75 0D	90 90				 jne @@addLastPart	 ; get last part of number
-1   278
-1   279	    01CD  8A 05					 mov al, byte ptr [di]	 ; AL =	*DI
-1   280	    01CF  2C 30					 sub al, '0'		 ; AL -= '0' (AL = digit value like 0?)
-1   281
-1   282	    01D1  B4 0A					 mov ah, 10d		 ; AX =	0A0x
-1   283	    01D3  F6 E4					 mul ah			 ; AX =	AL * AH	= 0? * 0A
-1   284	    01D5  8A E0					 mov ah, al		 ; AH =	AL
-1   285										 ; now AX = [NUMBER] [NUMBER] (hex)
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 6
+1   261	    01BA  5F					 pop di			 ; restore DI
+1   262	    01BB  47					 inc di			 ; DI++	(go to next symbol after msg)
+1   263
+1   264	    01BC  C3					 ret
+1   265	    01BD					 endp
+1   266
+1   267					 ; ============================================= ;
+1   268					 ; Describe:	 Get decimal number from a cmd	 ;
+1   269					 ; Entry:	 (assumed) DI -	start position	 ;
+1   270					 ; Exit:	 AL - the number		 ;
+1   271					 ; Destroy:	 CX, BX				 ;
+1   272					 ; ============================================= ;
+1   273
+1   274	    01BD			 parseNumber	 proc
+1   275
+1   276	    01BD  8B DF					 mov bx, di		 ; BX =	DI
+1   277
+1   278	    01BF  E8 FFD4				 call wordLength	 ; put END POSITION to DI
+1   279
+1   280	    01C2  2B FB					 sub di, bx		 ; DI -= BX (end pos - start pos + 1)
+1   281	    01C4  8B CF					 mov cx, di		 ; CX =	DI (CX - count of digits)
+1   282	    01C6  8B FB					 mov di, bx		 ; DI =	BX
+1   283
+1   284	    01C8  83 F9	03				 cmp cx, 3d		 ; if CX >= 3
+1   285										 ; (check count	of digits)
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 6
 frame.asm
 
 
 
-1   286										 ;	    ^^^^^^^^ ^^^^^^^^
-1   287										 ;	       AH	AL
-1   288
-1   289	    01D7  47					 inc di			 ; increment pos in cmd
-1   290
-1   291	    01D8					 @@addLastPart:
-1   292	    01D8  8A 05					 mov al, byte ptr [di]	 ; AL =	*DI
-1   293	    01DA  2C 30					 sub al, '0'		 ; AL =	digit value like 0?
-1   294	    01DC  02 C4					 add al, ah		 ; AL += AH
-1   295
-1   296	    01DE  47					 inc di			 ; increment pos in cmd
+1   286	    01CB  0F 83	FF4F				 jae printErrorMessage	 ; print error message
+1   287
+1   288	    01CF  83 F9	00				 cmp cx, 0d		 ; if CX == 0
+1   289										 ; (check count	of digits)
+1   290	    01D2  0F 84	FF48				 je  printErrorMessage	 ; print error message
+1   291
+1   292	    01D6  33 C0					 xor ax, ax		 ; AX =	0
+1   293
+1   294	    01D8  83 F9	02				 cmp cx, 2d		 ; if CX != 2
+1   295										 ; (check count	of digits)
+1   296	    01DB  75 0D	90 90				 jne @@addLastPart	 ; get last part of number
 1   297
-1   298	    01DF  C3					 ret
-1   299	    01E0					 endp
+1   298	    01DF  8A 05					 mov al, byte ptr [di]	 ; AL =	*DI
+1   299	    01E1  2C 30					 sub al, '0'		 ; AL -= '0' (AL = digit value like 0?)
 1   300
-1   301					 ; ===================================================================== ;
-1   302					 ; Describe:	 Skip spaces in	command-line				 ;
-1   303					 ; Entry:	 (assumed) DI -	start position (whitespace symbol)	 ;
-1   304					 ; Exit:	 (assumed) DI -	end   position (non-whitespace symbol)	 ;
-1   305					 ; Destroy:	 None							 ;
-1   306					 ; ===================================================================== ;
+1   301	    01E3  B4 0A					 mov ah, 10d		 ; AX =	0A0x
+1   302	    01E5  F6 E4					 mul ah			 ; AX =	AL * AH	= 0? * 0A
+1   303	    01E7  8A E0					 mov ah, al		 ; AH =	AL
+1   304										 ; now AX = [NUMBER] [NUMBER] (hex)
+1   305										 ;	    ^^^^^^^^ ^^^^^^^^
+1   306										 ;	       AH	AL
 1   307
-1   308	    01E0			 skipSpaces	 proc
+1   308	    01E9  47					 inc di			 ; increment pos in cmd
 1   309
-1   310	    01E0					 @@next:		 ; check if next symbol
-1   311										 ; is non-whitespace
-1   312	    01E0  80 3D	20				 cmp byte ptr [di], ' '	 ; if *di != ' '
-1   313	    01E3  75 05	90 90				 jne @@end		 ; break
+1   310	    01EA					 @@addLastPart:
+1   311	    01EA  8A 05					 mov al, byte ptr [di]	 ; AL =	*DI
+1   312	    01EC  2C 30					 sub al, '0'		 ; AL =	digit value like 0?
+1   313	    01EE  02 C4					 add al, ah		 ; AL += AH
 1   314
-1   315	    01E7  47					 inc di			 ; increment pos in cmd
+1   315	    01F0  47					 inc di			 ; increment pos in cmd
 1   316
-1   317	    01E8  EB F6					 jmp @@next		 ; repeat
-1   318
-1   319	    01EA					 @@end:
-1   320
-1   321	    01EA  C3					 ret
-1   322	    01EB					 endp
-    323					 include input.asm	 ;
-1   324					 ; ============================================= ;
-1   325					 ; Describe:	 Tracking if user is keystroking ;
-1   326					 ; Entry:	 None				 ;
-1   327					 ; Exit:	 None				 ;
-1   328					 ; Destroy:	 AX				 ;
-1   329					 ; ============================================= ;
-1   330
-1   331	    01EB			 checkInput	 proc
-1   332
-1   333	    01EB  B4 01					 mov ah, 01h		 ; 21H 01H - Keyboard Input [AL]
-1   334	    01ED  CD 21					 int 21h		 ; SYSCALL 21H
-1   335	    01EF  3C 71					 cmp al, 'q'		 ; if AL == 'q'
-1   336
-1   337	    01F1  0F 84	FF24				 je exitProgramm	 ; exit
-1   338
-1   339	    01F5  3C 50					 cmp al, 50h		 ; if AL == 50h		 ||
-1   340	    01F7  74 09	90 90				 je incCurrentLine	 ; move	to next	line	 \/
-1   341
-1   342	    01FB  3C 48					 cmp al, 48h		 ; if AL == 48h		 /\
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 7
+1   317	    01F1  C3					 ret
+1   318	    01F2					 endp
+1   319
+1   320					 ; ===================================================================== ;
+1   321					 ; Describe:	 Skip spaces in	command-line				 ;
+1   322					 ; Entry:	 (assumed) DI -	start position (whitespace symbol)	 ;
+1   323					 ; Exit:	 (assumed) DI -	end   position (non-whitespace symbol)	 ;
+1   324					 ; Destroy:	 None							 ;
+1   325					 ; ===================================================================== ;
+1   326
+1   327	    01F2			 skipSpaces	 proc
+1   328
+1   329	    01F2					 @@next:		 ; check if next symbol
+1   330										 ; is non-whitespace
+1   331	    01F2  80 3D	20				 cmp byte ptr [di], ' '	 ; if *di != ' '
+1   332	    01F5  75 05	90 90				 jne @@end		 ; break
+1   333
+1   334	    01F9  47					 inc di			 ; increment pos in cmd
+1   335
+1   336	    01FA  EB F6					 jmp @@next		 ; repeat
+1   337
+1   338	    01FC					 @@end:
+1   339
+1   340	    01FC  C3					 ret
+1   341	    01FD					 endp
+    342					 include input.asm	 ;
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 7
 frame.asm
 
 
 
-1   343	    01FD  74 14	90 90				 je decCurrentLine	 ; move	to previous line ||
-1   344
-1   345	    0201  C3					 ret
-1   346
-1   347	    0202					 incCurrentLine:
-1   348	    0202  A0 0035r					 mov al, CURRENT_LINE
+1   343					 ; ============================================= ;
+1   344					 ; Describe:	 Tracking if user is keystroking ;
+1   345					 ; Entry:	 None				 ;
+1   346					 ; Exit:	 None				 ;
+1   347					 ; Destroy:	 AX				 ;
+1   348					 ; ============================================= ;
 1   349
-1   350	    0205  3A 06	0032r					 cmp al, BORDER_HEIGHT
-1   351	    0209  74 16	90 90					 je @@return
-1   352
-1   353	    020D  FE C0						 inc al
-1   354
-1   355	    020F  A2 0035r					 mov CURRENT_LINE, al
-1   356
-1   357	    0212  C3						 ret
-1   358
-1   359	    0213					 decCurrentLine:
-1   360	    0213  A0 0035r					 mov al, CURRENT_LINE
-1   361
-1   362	    0216  3C 01						 cmp al, 1d
-1   363	    0218  74 07	90 90					 je @@return
-1   364
-1   365	    021C  FE C8						 dec al
-1   366
-1   367	    021E  A2 0035r					 mov CURRENT_LINE, al
+1   350	    01FD			 checkInput	 proc
+1   351
+1   352	    01FD  B4 01					 mov ah, 01h		 ; 21H 01H - Keyboard Input [AL]
+1   353	    01FF  CD 21					 int 21h		 ; SYSCALL 21H
+1   354	    0201  3C 71					 cmp al, 'q'		 ; if AL == 'q'
+1   355
+1   356	    0203  0F 84	FF12				 je exitProgramm	 ; exit
+1   357
+1   358	    0207  3C 50					 cmp al, 50h		 ; if AL == 50h		 ||
+1   359	    0209  74 09	90 90				 je incCurrentLine	 ; move	to next	line	 \/
+1   360
+1   361	    020D  3C 48					 cmp al, 48h		 ; if AL == 48h		 /\
+1   362	    020F  74 14	90 90				 je decCurrentLine	 ; move	to previous line ||
+1   363
+1   364	    0213  C3					 ret
+1   365
+1   366	    0214					 incCurrentLine:
+1   367	    0214  A0 0037r					 mov al, CURRENT_LINE
 1   368
-1   369	    0221						 @@return:
-1   370	    0221  C3							 ret
+1   369	    0217  3A 06	0034r					 cmp al, BORDER_HEIGHT
+1   370	    021B  74 16	90 90					 je @@return
 1   371
-1   372	    0222					 endp
-    373					 ; _____________________ ;
-    374
-    375
-    376					 ; ===================================================================== ;
-    377					 ; Describe:	 Clear monitor display (fill out by CLEAN_MONITOR str)	 ;
-    378					 ; Entry:	 (assumed) CLEAN_MONITOR - string			 ;
-    379					 ; Exit:	 None							 ;
-    380					 ; Destroy:	 AX, DX							 ;
-    381					 ; ===================================================================== ;
-    382
-    383	    0222			 clearDisplay	 proc
-    384
-    385	    0222  B4 09				 mov ah, 09h			 ; 21H 09H - Display Text
-    386	    0224  BA 003Er			 mov dx, offset	CLEAN_MONITOR	 ; DX =	&CLEAN_MONITOR
-    387	    0227  CD 21				 int 21h			 ; SYSCALL 21H
-    388
-    389	    0229  C3				 ret
-    390	    022A					 endp
-    391
-    392					 ; ===================================================== ;
-    393					 ; Describe:	 Print text line to display		 ;
-    394					 ; Entry:	 AH - color attribute			 ;
-    395					 ;		 SI - offset of	memory			 ;
-    396					 ;		 DI - pointer to string			 ;
-    397					 ;		 (assumed) ES =	0b800h - VIDEOMEM offset ;
-    398					 ; Exit:	 None					 ;
-    399					 ; Destroy:	 AX, CX, DI				 ;
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 8
+1   372	    021F  FE C0						 inc al
+1   373
+1   374	    0221  A2 0037r					 mov CURRENT_LINE, al
+1   375
+1   376	    0224  C3						 ret
+1   377
+1   378	    0225					 decCurrentLine:
+1   379	    0225  A0 0037r					 mov al, CURRENT_LINE
+1   380
+1   381	    0228  3C 01						 cmp al, 1d
+1   382	    022A  74 07	90 90					 je @@return
+1   383
+1   384	    022E  FE C8						 dec al
+1   385
+1   386	    0230  A2 0037r					 mov CURRENT_LINE, al
+1   387
+1   388	    0233						 @@return:
+1   389	    0233  C3							 ret
+1   390
+1   391	    0234					 endp
+    392					 ; _____________________ ;
+    393
+    394
+    395					 ; ===================================================================== ;
+    396					 ; Describe:	 Clear monitor display (fill out by CLEAN_MONITOR str)	 ;
+    397					 ; Entry:	 (assumed) CLEAN_MONITOR - string			 ;
+    398					 ; Exit:	 None							 ;
+    399					 ; Destroy:	 AX, DX							 ;
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 8
 frame.asm
 
 
 
-    400					 ; ===================================================== ;
+    400					 ; ===================================================================== ;
     401
-    402	    022A			 printString	 proc
-    403	    022A  8A 0D				 mov cl, [di]	 ; CL =	*DI
-    404
-    405	    022C  47				 inc di		 ; increment pos in string
-    406	    022D  50				 push ax	 ; save	AX
+    402	    0234			 clearDisplay	 proc
+    403
+    404	    0234  B4 09				 mov ah, 09h			 ; 21H 09H - Display Text
+    405	    0236  BA 0040r			 mov dx, offset	CLEAN_MONITOR	 ; DX =	&CLEAN_MONITOR
+    406	    0239  CD 21				 int 21h			 ; SYSCALL 21H
     407
-    408	    022E  2B F1				 sub si, cx	 ; SI -= CX
-    409
-    410	    0230  8B C6				 mov ax, si	 ; AX =	SI
-    411	    0232  25 0001			 and ax, 1	 ; AX &= 1 (check mod 2)
-    412	    0235  03 F0				 add si, ax	 ; SI += AX (complete to even number)
-    413
-    414	    0237  83 C6	02			 add si, 2d	 ; SI += 2
-    415
-    416	    023A  58				 pop ax		 ; restore AX
-    417
-    418	    023B				 @@next:		 ; write symbol	into VIDEOMEM
-    419
-    420	    023B  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
-    421	    023D  26: 89 04			 mov es:[si], ax	 ; ES:[SI] = AX	(write symbol)
-    422	    0240  83 C6	02			 add si, 2d		 ; SI += 2 (shift)
+    408	    023B  C3				 ret
+    409	    023C					 endp
+    410
+    411					 ; ===================================================== ;
+    412					 ; Describe:	 Print text line to display		 ;
+    413					 ; Entry:	 AH - color attribute			 ;
+    414					 ;		 SI - offset of	memory			 ;
+    415					 ;		 DI - pointer to string			 ;
+    416					 ;		 (assumed) ES =	0b800h - VIDEOMEM offset ;
+    417					 ; Exit:	 None					 ;
+    418					 ; Destroy:	 AX, CX, DI				 ;
+    419					 ; ===================================================== ;
+    420
+    421	    023C			 printString	 proc
+    422	    023C  8A 0D				 mov cl, [di]	 ; CL =	*DI
     423
-    424	    0243  47				 inc di			 ; increment pos in string
-    425
-    426	    0244  E2 F5				 loop @@next		 ; repeat
-    427
-    428	    0246  C3				 ret
-    429	    0247					 endp
-    430
-    431					 ; ===================================================== ;
-    432					 ; Describe:	 Print border or internal line		 ;
-    433					 ; Entry:	 AH - background color attribute	 ;
-    434					 ;		 DI - position in line			 ;
-    435					 ;		 CX - count of internal	symbols		 ;
-    436					 ;		 BX - offset of	memory			 ;
-    437					 ;		 (assumed) ES =	0b800h - VIDEOMEM offset ;
-    438					 ; Exit:	 None					 ;
-    439					 ; Destroy:						 ;
-    440					 ; ===================================================== ;
-    441
-    442	    0247			 printLine	 proc
-    443	    0247  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
+    424	    023E  47				 inc di		 ; increment pos in string
+    425	    023F  50				 push ax	 ; save	AX
+    426
+    427	    0240  2B F1				 sub si, cx	 ; SI -= CX
+    428
+    429	    0242  8B C6				 mov ax, si	 ; AX =	SI
+    430	    0244  25 0001			 and ax, 1	 ; AX &= 1 (check mod 2)
+    431	    0247  03 F0				 add si, ax	 ; SI += AX (complete to even number)
+    432
+    433	    0249  83 C6	02			 add si, 2d	 ; SI += 2
+    434
+    435	    024C  58				 pop ax		 ; restore AX
+    436
+    437	    024D				 @@next:		 ; write symbol	into VIDEOMEM
+    438
+    439	    024D  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
+    440	    024F  26: 89 04			 mov es:[si], ax	 ; ES:[SI] = AX	(write symbol)
+    441	    0252  83 C6	02			 add si, 2d		 ; SI += 2 (shift)
+    442
+    443	    0255  47				 inc di			 ; increment pos in string
     444
-    445	    0249  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write first symbol)
-    446	    024C  83 C3	02			 add bx, 2d		 ; BX += 2 (shift)
-    447	    024F  47				 inc di			 ; increment pos in string
-    448
-    449	    0250  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
-    450
-    451	    0252				 @@next:		 ; write internal symbols
-    452
-    453	    0252  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write symbol)
-    454	    0255  83 C3	02			 add bx, 2d		 ; BX += 2 (shift)
-    455
-    456	    0258  E2 F8				 loop @@next
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 9
+    445	    0256  E2 F5				 loop @@next		 ; repeat
+    446
+    447	    0258  C3				 ret
+    448	    0259					 endp
+    449
+    450					 ; ===================================================== ;
+    451					 ; Describe:	 Print border or internal line		 ;
+    452					 ; Entry:	 AH - background color attribute	 ;
+    453					 ;		 DI - position in line			 ;
+    454					 ;		 CX - count of internal	symbols		 ;
+    455					 ;		 BX - offset of	memory			 ;
+    456					 ;		 (assumed) ES =	0b800h - VIDEOMEM offset ;
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 9
 frame.asm
 
 
 
-    457
-    458	    025A  47				 inc di			 ; increment pos in string
-    459
-    460	    025B  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
-    461	    025D  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write last symbol)
-    462	    0260  83 C3	02			 add bx, 2d		 ; BX += 2 (shift)
+    457					 ; Exit:	 None					 ;
+    458					 ; Destroy:						 ;
+    459					 ; ===================================================== ;
+    460
+    461	    0259			 printLine	 proc
+    462	    0259  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
     463
-    464	    0263  47				 inc di			 ; increment pos in string
-    465
-    466	    0264  C3				 ret
-    467	    0265					 endp
-    468
+    464	    025B  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write first symbol)
+    465	    025E  83 C3	02			 add bx, 2d		 ; BX += 2 (shift)
+    466	    0261  47				 inc di			 ; increment pos in string
+    467
+    468	    0262  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
     469
-    470					 ; ============================================= ;
-    471					 ; Describe:	 Shift to the next line	function ;
-    472					 ; Entry:	 BX - memory adress		 ;
-    473					 ; Exit:	 BX - position of the next line	 ;
-    474					 ; Destroy:	 AX				 ;
-    475					 ; ============================================= ;
+    470	    0264				 @@next:		 ; write internal symbols
+    471
+    472	    0264  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write symbol)
+    473	    0267  83 C3	02			 add bx, 2d		 ; BX += 2 (shift)
+    474
+    475	    026A  E2 F8				 loop @@next
     476
-    477	    0265			 shiftToNextLine proc
+    477	    026C  47				 inc di			 ; increment pos in string
     478
-    479	    0265  33 C0				 xor ax, ax		 ; AX =	0
-    480	    0267  A0 0031r			 mov al, BORDER_WIDTH	 ; AL =	BORDER_WIDTH
-    481
-    482	    026A  2B D8				 sub bx, ax		 ; BX -= BORDER_WIDTH
-    483	    026C  2B D8				 sub bx, ax		 ; BX -= BORDER_WIDTH
-    484	    026E  83 EB	04			 sub bx, 4d		 ; BX -= 4
-    485	    0271  81 C3	00A0			 add bx, 160d		 ; BX += 160 (maxWidth * 2)
-    486
-    487	    0275  C3				 ret
-    488	    0276					 endp
-    489
-    490					 ; ===================================================== ;
-    491					 ; Describe:	 Draw frame in the middle of the display ;
-    492					 ; Entry:	 CX - border width			 ;
-    493					 ;		 AH - border height			 ;
-    494					 ;		 (assumed) ES =	0b800h - VIDEOMEM offset ;
-    495					 ; Exit:	 None					 ;
-    496					 ; Destroy:	 AX, BX, CX, DX, SI			 ;
-    497					 ; ===================================================== ;
-    498
-    499	    0276			 drawFrame	 proc
-    500	    0276  33 C9				 xor cx, cx		 ; CX =	0
-    501	    0278  8A 0E	0032r			 mov cl, BORDER_HEIGHT	 ; CL =	BORDER_HEIGHT
-    502
-    503	    027C  B8 0019			 mov ax, 25d		 ; AX =	25
-    504									 ; (maxHeight) - BORDER_HEIGHT
-    505	    027F  2B C1				 sub ax, cx		 ; AX -= CX
-    506
-    507	    0281  D1 E8				 shr ax, 1		 ; AX /= 2
-    508	    0283  BB 00A0			 mov bx, 160d		 ; BX += 160 (maxWidth * 2)
-    509
-    510	    0286  F7 E3				 mul bx			 ; AX *= 160
-    511
-    512	    0288  8B D8				 mov bx, ax		 ; BX =	AX (get	start position)
-    513
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 10
+    479	    026D  8A 05				 mov al, byte ptr [di]	 ; AL =	*DI
+    480	    026F  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write last symbol)
+    481	    0272  83 C3	02			 add bx, 2d		 ; BX += 2 (shift)
+    482
+    483	    0275  47				 inc di			 ; increment pos in string
+    484
+    485	    0276  C3				 ret
+    486	    0277					 endp
+    487
+    488
+    489					 ; ============================================= ;
+    490					 ; Describe:	 Shift to the next line	function ;
+    491					 ; Entry:	 BX - memory adress		 ;
+    492					 ; Exit:	 BX - position of the next line	 ;
+    493					 ; Destroy:	 AX				 ;
+    494					 ; ============================================= ;
+    495
+    496	    0277			 shiftToNextLine proc
+    497
+    498	    0277  33 C0				 xor ax, ax		 ; AX =	0
+    499	    0279  A0 0033r			 mov al, BORDER_WIDTH	 ; AL =	BORDER_WIDTH
+    500
+    501	    027C  2B D8				 sub bx, ax		 ; BX -= BORDER_WIDTH
+    502	    027E  2B D8				 sub bx, ax		 ; BX -= BORDER_WIDTH
+    503	    0280  83 EB	04			 sub bx, 4d		 ; BX -= 4
+    504	    0283  81 C3	00A0			 add bx, 160d		 ; BX += 160 (maxWidth * 2)
+    505
+    506	    0287  C3				 ret
+    507	    0288					 endp
+    508
+    509					 ; ===================================================== ;
+    510					 ; Describe:	 Draw frame in the middle of the display ;
+    511					 ; Entry:	 CX - border width			 ;
+    512					 ;		 AH - border height			 ;
+    513					 ;		 (assumed) ES =	0b800h - VIDEOMEM offset ;
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 10
 frame.asm
 
 
 
-    514					 ; ___________________ GET POSITION BY OX __________________ ;
-    515	    028A  33 C9				 xor cx, cx		 ; CX =	0
-    516	    028C  8A 0E	0031r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
+    514					 ; Exit:	 None					 ;
+    515					 ; Destroy:	 AX, BX, CX, DX, SI			 ;
+    516					 ; ===================================================== ;
     517
-    518	    0290  B8 0050			 mov ax, 80d		 ; AX =	maxWidth - BORDER_WIDTH
-    519	    0293  2B C1				 sub ax, cx		 ; AX -= CX
-    520					 ; --------------------------------------------------------- ;
-    521	    0295  53				 push bx	 ; save	BX
-    522
-    523	    0296  8B D8				 mov bx, ax	 ; this	part for aligment by
-    524								 ; even	numbers	address
+    518	    0288			 drawFrame	 proc
+    519	    0288  33 C9				 xor cx, cx		 ; CX =	0
+    520	    028A  8A 0E	0034r			 mov cl, BORDER_HEIGHT	 ; CL =	BORDER_HEIGHT
+    521
+    522	    028E  B8 0019			 mov ax, 25d		 ; AX =	25
+    523									 ; (maxHeight) - BORDER_HEIGHT
+    524	    0291  2B C1				 sub ax, cx		 ; AX -= CX
     525
-    526	    0298  83 E3	01			 and bx, 1	 ; BX &= 1
-    527	    029B  03 C3				 add ax, bx	 ; AX += BX
+    526	    0293  D1 E8				 shr ax, 1		 ; AX /= 2
+    527	    0295  BB 00A0			 mov bx, 160d		 ; BX += 160 (maxWidth * 2)
     528
-    529	    029D  5B				 pop bx		 ; restore bx
-    530					 ; --------------------------------------------------------- ;
-    531	    029E  03 D8				 add bx, ax		 ; BX += AX
-    532	    02A0  83 EB	02			 sub bx, 2d		 ; BX -= 2
-    533
-    534	    02A3  8B F3				 mov si, bx		 ; SI -= BX (get center	of frame)
-    535
-    536	    02A5  33 C0				 xor ax, ax		 ; AX =	0
-    537	    02A7  A0 0031r			 mov al, BORDER_WIDTH	 ; AL =	BORDER_WIDTH
-    538	    02AA  03 F0				 add si, ax		 ; SI += AX
-    539
-    540					 ; ______________________ SELECT MODE ______________________ ;
-    541	    02AC  E8 0077			 call selectMode		 ; select style	of border
-    542
-    543	    02AF  B4 50				 mov ah, WBACK_BFRONT		 ; set attribute
-    544	    02B1  E8 FF93			 call printLine			 ; print upper line
-    545
-    546	    02B4  57				 push di			 ; save	DI
+    529	    0298  F7 E3				 mul bx			 ; AX *= 160
+    530
+    531	    029A  8B D8				 mov bx, ax		 ; BX =	AX (get	start position)
+    532
+    533					 ; ___________________ GET POSITION BY OX __________________ ;
+    534	    029C  33 C9				 xor cx, cx		 ; CX =	0
+    535	    029E  8A 0E	0033r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
+    536
+    537	    02A2  B8 0050			 mov ax, 80d		 ; AX =	maxWidth - BORDER_WIDTH
+    538	    02A5  2B C1				 sub ax, cx		 ; AX -= CX
+    539					 ; --------------------------------------------------------- ;
+    540	    02A7  53				 push bx	 ; save	BX
+    541
+    542	    02A8  8B D8				 mov bx, ax	 ; this	part for aligment by
+    543								 ; even	numbers	address
+    544
+    545	    02AA  83 E3	01			 and bx, 1	 ; BX &= 1
+    546	    02AD  03 C3				 add ax, bx	 ; AX += BX
     547
-    548	    02B5  BF 0026r			 mov di, offset	TABLE_NAME	 ; DI =	&TABLE_NAME
-    549
-    550	    02B8  E8 FF6F			 call printString		 ; print header	(TABLE_NAME)
-    551
-    552	    02BB  5F				 pop di				 ; restore DI
-    553
-    554	    02BC  8A 16	0032r			 mov dl, BORDER_HEIGHT		 ; DL =	BORDER_HEIGHT
-    555					 ; ---------------------------------------------------------- ;
-    556	    02C0  33 C9				 xor cx, cx		 ; CX =	0
-    557	    02C2  8A 0E	0034r			 mov cl, TEXT_POSITION	 ; CL =	TEXT_POSITION
-    558	    02C6  8B F1				 mov si, cx		 ; SI =	CX
-    559
-    560	    02C8				 @@next:		 ; print next line
-    561	    02C8  FE CA				 dec dl			 ; decrease line number
-    562
-    563	    02CA  E8 FF98			 call shiftToNextLine	 ; shift to next line
-    564	    02CD  8A 0E	0031r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
-    565
-    566					 ; ---------------------------------------------------------- ;
-    567	    02D1  8A 26	0032r			 mov ah, BORDER_HEIGHT	 ; AH =	BORDER_HEIGHT
-    568	    02D5  2A E2				 sub ah, dl		 ; AH -= DL (AH	-= lineNumber)
-    569
-    570	    02D7  3A 26	0035r			 cmp ah, CURRENT_LINE	 ; if AH == CURRENT_LINE
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 11
+    548	    02AF  5B				 pop bx		 ; restore bx
+    549					 ; --------------------------------------------------------- ;
+    550	    02B0  03 D8				 add bx, ax		 ; BX += AX
+    551	    02B2  83 EB	02			 sub bx, 2d		 ; BX -= 2
+    552
+    553	    02B5  8B F3				 mov si, bx		 ; SI -= BX (get center	of frame)
+    554
+    555	    02B7  33 C0				 xor ax, ax		 ; AX =	0
+    556	    02B9  A0 0033r			 mov al, BORDER_WIDTH	 ; AL =	BORDER_WIDTH
+    557	    02BC  03 F0				 add si, ax		 ; SI += AX
+    558
+    559					 ; ______________________ SELECT MODE ______________________ ;
+    560	    02BE  E8 007F			 call selectMode		 ; select style	of border
+    561
+    562	    02C1  8A 26	002Fr			 mov ah, WBACK_BFRONT		 ; set attribute
+    563	    02C5  E8 FF91			 call printLine			 ; print upper line
+    564
+    565	    02C8  57				 push di			 ; save	DI
+    566
+    567	    02C9  BF 0026r			 mov di, offset	TABLE_NAME	 ; DI =	&TABLE_NAME
+    568
+    569	    02CC  E8 FF6D			 call printString		 ; print header	(TABLE_NAME)
+    570
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 11
 frame.asm
 
 
 
-    571	    02DB  74 45	90 90			 je setCurrentColor	 ; set current color
+    571	    02CF  5F				 pop di				 ; restore DI
     572
-    573	    02DF  B4 50				 mov ah, WBACK_BFRONT	 ; AH =	WBACK_BFRONT
-    574	    02E1				 returnToLoop:
-    575					 ; ---------------------------------------------------------- ;
-    576	    02E1  E8 FF63			 call printLine		 ; print line
-    577
-    578	    02E4  A0 0032r			 mov al, BORDER_HEIGHT	 ; AL =	BORDER_HEIGHT
-    579	    02E7  2A C2				 sub al, dl		 ; AL -= DL (AL	-= lineNumber)
-    580
-    581	    02E9  3A 06	0036r			 cmp al, LINE_COUNT	 ; if AL > LINE_COUNT
-    582									 ; (currLine > LINE_COUNT)
-    583	    02ED  77 1B	90 90			 ja @@skipTextLine	 ; skip	text line
+    573	    02D0  8A 16	0034r			 mov dl, BORDER_HEIGHT		 ; DL =	BORDER_HEIGHT
+    574					 ; ---------------------------------------------------------- ;
+    575	    02D4  33 C9				 xor cx, cx		 ; CX =	0
+    576	    02D6  8A 0E	0036r			 mov cl, TEXT_POSITION	 ; CL =	TEXT_POSITION
+    577	    02DA  8B F1				 mov si, cx		 ; SI =	CX
+    578
+    579	    02DC				 @@next:		 ; print next line
+    580	    02DC  FE CA				 dec dl			 ; decrease line number
+    581
+    582	    02DE  E8 FF96			 call shiftToNextLine	 ; shift to next line
+    583	    02E1  8A 0E	0033r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
     584
-    585	    02F1				 @@skipNext:		 ; skip	spaces before string
-    586	    02F1  80 3C	20			 cmp [si], byte	ptr ' '	 ; if *si != ' '
-    587	    02F4  75 05	90 90			 jne @@skipEnd		 ; go to skipEnd
-    588	    02F8  46					 inc si
-    589
-    590	    02F9  EB F6				 jmp @@skipNext		 ; repeat
+    585					 ; ---------------------------------------------------------- ;
+    586	    02E5  8A 26	0034r			 mov ah, BORDER_HEIGHT	 ; AH =	BORDER_HEIGHT
+    587	    02E9  2A E2				 sub ah, dl		 ; AH -= DL (AH	-= lineNumber)
+    588
+    589	    02EB  3A 26	0037r			 cmp ah, CURRENT_LINE	 ; if AH == CURRENT_LINE
+    590	    02EF  74 49	90 90			 je setCurrentColor	 ; set current color
     591
-    592	    02FB				 @@skipEnd:
-    593
-    594	    02FB  53				 push bx		 ; save	BX
-    595
-    596	    02FC  33 C9				 xor cx, cx		 ; CX =	0
-    597	    02FE  8A 0E	0031r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
-    598	    0302  2B D9				 sub bx, cx		 ; BX -= CX
-    599	    0304  2B D9				 sub bx, cx		 ; (get	pos to write)
-    600
-    601	    0306  E8 005C			 call printTextLineIntoBox ; print text	into box
-    602
-    603	    0309  5B				 pop bx			 ; restore BX
-    604
-    605	    030A				 @@skipTextLine:
-    606
-    607	    030A  83 EF	03			 sub di, 3d		 ; DI -= 3
+    592	    02F3  8A 26	002Fr			 mov ah, WBACK_BFRONT	 ; AH =	WBACK_BFRONT
+    593	    02F7				 returnToLoop:
+    594					 ; ---------------------------------------------------------- ;
+    595	    02F7  E8 FF5F			 call printLine		 ; print line
+    596
+    597	    02FA  A0 0034r			 mov al, BORDER_HEIGHT	 ; AL =	BORDER_HEIGHT
+    598	    02FD  2A C2				 sub al, dl		 ; AL -= DL (AL	-= lineNumber)
+    599
+    600	    02FF  3A 06	0038r			 cmp al, LINE_COUNT	 ; if AL > LINE_COUNT
+    601									 ; (currLine > LINE_COUNT)
+    602	    0303  77 1B	90 90			 ja @@skipTextLine	 ; skip	text line
+    603
+    604	    0307				 @@skipNext:		 ; skip	spaces before string
+    605	    0307  80 3C	20			 cmp [si], byte	ptr ' '	 ; if *si != ' '
+    606	    030A  75 05	90 90			 jne @@skipEnd		 ; go to skipEnd
+    607	    030E  46					 inc si
     608
-    609	    030D  80 FA	00			 cmp dl, 0		 ; if DL != 0
-    610	    0310  75 B6				 jne @@next		 ; go to next
-    611
-    612	    0312  E8 FF50			 call shiftToNextLine	 ; shift to next line
-    613	    0315  83 C7	03			 add di, 3d		 ; DI += 3
+    609	    030F  EB F6				 jmp @@skipNext		 ; repeat
+    610
+    611	    0311				 @@skipEnd:
+    612
+    613	    0311  53				 push bx		 ; save	BX
     614
-    615	    0318  B4 50				 mov ah, WBACK_BFRONT	 ; AH =	WBACK_BFRONT
-    616	    031A  8A 0E	0031r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
-    617
-    618	    031E  E8 FF26			 call printLine		 ; print line
+    615	    0312  33 C9				 xor cx, cx		 ; CX =	0
+    616	    0314  8A 0E	0033r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
+    617	    0318  2B D9				 sub bx, cx		 ; BX -= CX
+    618	    031A  2B D9				 sub bx, cx		 ; (get	pos to write)
     619
-    620	    0321  C3				 ret
-    621	    0322					 endp
-    622
-    623					 ; ============================================= ;
-    624					 ; Describe:	 Set background	and text color	 ;
-    625					 ; Entry:	 None				 ;
-    626					 ; Exit:	 AH - symbol attribute		 ;
-    627					 ; Destroy:	 None				 ;
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 12
+    620	    031C  E8 0060			 call printTextLineIntoBox ; print text	into box
+    621
+    622	    031F  5B				 pop bx			 ; restore BX
+    623
+    624	    0320				 @@skipTextLine:
+    625
+    626	    0320  83 EF	03			 sub di, 3d		 ; DI -= 3
+    627
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 12
 frame.asm
 
 
 
-    628					 ; ============================================= ;
-    629
-    630	    0322			 setCurrentColor:
-    631	    0322  B4 05				 mov ah, BBACK_WFRONT	 ; AH =	BBACK_WRONT (TODO)
-    632
-    633	    0324  EB BB				 jmp returnToLoop
-    634
-    635					 ; ============================================================= ;
-    636					 ; Describe:	 Select	border mode by code			 ;
-    637					 ; Entry:	 AH						 ;
-    638					 ; Exit:	 DI - pos of first symbol of selected border	 ;
-    639					 ; Destroy:	 AH						 ;
-    640					 ; ============================================================= ;
+    628	    0323  80 FA	00			 cmp dl, 0		 ; if DL != 0
+    629	    0326  75 B4				 jne @@next		 ; go to next
+    630
+    631	    0328  E8 FF4C			 call shiftToNextLine	 ; shift to next line
+    632	    032B  83 C7	03			 add di, 3d		 ; DI += 3
+    633
+    634	    032E  8A 26	002Fr			 mov ah, WBACK_BFRONT	 ; AH =	WBACK_BFRONT
+    635	    0332  8A 0E	0033r			 mov cl, BORDER_WIDTH	 ; CL =	BORDER_WIDTH
+    636
+    637	    0336  E8 FF20			 call printLine		 ; print line
+    638
+    639	    0339  C3				 ret
+    640	    033A					 endp
     641
-    642	    0326			 selectMode	 proc
-    643	    0326  8A 26	0033r			 mov ah, [BORDER_MODE]		 ; AH =	*BORDER_MODE
-    644
-    645	    032A  80 FC	00			 cmp ah, 0d			 ; user	preset
-    646	    032D  74 22	90 90			 je @USER_MODE
-    647
-    648	    0331  80 FC	01			 cmp ah, 1d			 ; 1st preset
-    649	    0334  74 1F	90 90			 je @FIRST_MODE
-    650
-    651	    0338  80 FC	02			 cmp ah, 2d			 ; 2nd preset
-    652	    033B  74 1C	90 90			 je @SECOND_MODE
+    642					 ; ============================================= ;
+    643					 ; Describe:	 Set background	and text color	 ;
+    644					 ; Entry:	 None				 ;
+    645					 ; Exit:	 AH - symbol attribute		 ;
+    646					 ; Destroy:	 None				 ;
+    647					 ; ============================================= ;
+    648
+    649	    033A			 setCurrentColor:
+    650	    033A  8A 26	0030r			 mov ah, BBACK_WFRONT	 ; AH =	BBACK_WRONT (TODO)
+    651
+    652	    033E  EB B7				 jmp returnToLoop
     653
-    654	    033F  80 FC	03			 cmp ah, 3d			 ; 3d preset
-    655	    0342  74 19	90 90			 je @THIRD_MODE
-    656
-    657	    0346  80 FC	04			 cmp ah, 4d			 ; 4th preset
-    658	    0349  74 16	90 90			 je @FOURTH_MODE
-    659
-    660	    034D  BF 002Fr			 mov di, offset	USER_BORDER	 ; default preset
-    661	    0350  C3				 ret
-    662
-    663	    0351				 @USER_MODE:
-    664	    0351  BF 002Fr			 mov di, offset	USER_BORDER
-    665	    0354  C3				 ret
+    654					 ; ============================================================= ;
+    655					 ; Describe:	 Select	border mode by code			 ;
+    656					 ; Entry:	 AH						 ;
+    657					 ; Exit:	 DI - pos of first symbol of selected border	 ;
+    658					 ; Destroy:	 AH						 ;
+    659					 ; ============================================================= ;
+    660
+    661	    0340			 selectMode	 proc
+    662	    0340  8A 26	0035r			 mov ah, [BORDER_MODE]		 ; AH =	*BORDER_MODE
+    663
+    664	    0344  80 FC	00			 cmp ah, 0d			 ; user	preset
+    665	    0347  74 22	90 90			 je @USER_MODE
     666
-    667	    0355				 @FIRST_MODE:
-    668	    0355  BF 0000r			 mov di, offset	FIRST_BORDER
-    669	    0358  C3				 ret
-    670
-    671	    0359				 @SECOND_MODE:
-    672	    0359  BF 000Ar			 mov di, offset	SECOND_BORDER
-    673	    035C  C3				 ret
-    674
-    675	    035D				 @THIRD_MODE:
-    676	    035D  BF 0014r			 mov di, offset	THIRD_BORDER
-    677	    0360  C3				 ret
+    667	    034B  80 FC	01			 cmp ah, 1d			 ; 1st preset
+    668	    034E  74 1F	90 90			 je @FIRST_MODE
+    669
+    670	    0352  80 FC	02			 cmp ah, 2d			 ; 2nd preset
+    671	    0355  74 1C	90 90			 je @SECOND_MODE
+    672
+    673	    0359  80 FC	03			 cmp ah, 3d			 ; 3d preset
+    674	    035C  74 19	90 90			 je @THIRD_MODE
+    675
+    676	    0360  80 FC	04			 cmp ah, 4d			 ; 4th preset
+    677	    0363  74 16	90 90			 je @FOURTH_MODE
     678
-    679	    0361				 @FOURTH_MODE:
-    680	    0361  BF 001Dr			 mov di, offset	FOURTH_BORDER
-    681	    0364  C3				 ret
-    682
-    683	    0365					 endp
-    684
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 13
+    679	    0367  BF 0031r			 mov di, offset	USER_BORDER	 ; default preset
+    680	    036A  C3				 ret
+    681
+    682	    036B				 @USER_MODE:
+    683	    036B  BF 0031r			 mov di, offset	USER_BORDER
+    684	    036E  C3				 ret
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 13
 frame.asm
 
 
 
-    685					 ; ===================================== ;
-    686					 ; Describe:	 Print text into box	 ;
-    687					 ; Entry:	 BX - position to write	 ;
-    688					 ;		 (assumed) ES =	0b800h	 ;
-    689					 ;		 SI - pos in string	 ;
-    690					 ; Exit:	 None			 ;
-    691					 ; Destroy:	 None			 ;
-    692					 ; ===================================== ;
+    685
+    686	    036F				 @FIRST_MODE:
+    687	    036F  BF 0000r			 mov di, offset	FIRST_BORDER
+    688	    0372  C3				 ret
+    689
+    690	    0373				 @SECOND_MODE:
+    691	    0373  BF 000Ar			 mov di, offset	SECOND_BORDER
+    692	    0376  C3				 ret
     693
-    694	    0365			 printTextLineIntoBox	 proc
-    695	    0365				 @@next:		 ; check line terminator
-    696	    0365  80 3C	24			 cmp [si], byte	ptr '$'	 ; if *si == '$'
-    697	    0368  74 0D	90 90			 je @@endLoop		 ; it's	end of line
-    698
-    699	    036C  8A 04				 mov al, byte ptr [si]	 ; AL =	*SI
-    700	    036E  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write symbol)
+    694	    0377				 @THIRD_MODE:
+    695	    0377  BF 0014r			 mov di, offset	THIRD_BORDER
+    696	    037A  C3				 ret
+    697
+    698	    037B				 @FOURTH_MODE:
+    699	    037B  BF 001Dr			 mov di, offset	FOURTH_BORDER
+    700	    037E  C3				 ret
     701
-    702	    0371  83 C3	02			 add bx, 2d		 ; BX += 2
+    702	    037F					 endp
     703
-    704	    0374  46				 inc si			 ; increment pos in string
-    705
-    706	    0375  EB EE				 jmp @@next		 ; repeat
-    707
-    708	    0377				 @@endLoop:
-    709
-    710	    0377  46				 inc si			 ; skip	terminator '$'
-    711
-    712	    0378  C3				 ret
-    713	    0379						 endp
-    714
-    715					 ; ################################################################## ;
-    716
-    717					 end		 Start
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 14
+    704					 ; ===================================== ;
+    705					 ; Describe:	 Print text into box	 ;
+    706					 ; Entry:	 BX - position to write	 ;
+    707					 ;		 (assumed) ES =	0b800h	 ;
+    708					 ;		 SI - pos in string	 ;
+    709					 ; Exit:	 None			 ;
+    710					 ; Destroy:	 None			 ;
+    711					 ; ===================================== ;
+    712
+    713	    037F			 printTextLineIntoBox	 proc
+    714	    037F				 @@next:		 ; check line terminator
+    715	    037F  80 3C	24			 cmp [si], byte	ptr '$'	 ; if *si == '$'
+    716	    0382  74 0D	90 90			 je @@endLoop		 ; it's	end of line
+    717
+    718	    0386  8A 04				 mov al, byte ptr [si]	 ; AL =	*SI
+    719	    0388  26: 89 07			 mov es:[bx], ax	 ; ES:[BX] = AX	(write symbol)
+    720
+    721	    038B  83 C3	02			 add bx, 2d		 ; BX += 2
+    722
+    723	    038E  46				 inc si			 ; increment pos in string
+    724
+    725	    038F  EB EE				 jmp @@next		 ; repeat
+    726
+    727	    0391				 @@endLoop:
+    728
+    729	    0391  46				 inc si			 ; skip	terminator '$'
+    730
+    731	    0392  C3				 ret
+    732	    0393						 endp
+    733
+    734					 ; ################################################################## ;
+    735
+    736					 end		 Start
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 14
 Symbol Table
 
 
@@ -790,28 +809,28 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "02/13/25"
 ??FILENAME			  Text	 "frame	  "
-??TIME				  Text	 "08:39:54"
+??TIME				  Text	 "09:13:19"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
-@@ADDLASTPART			  Near	 DGROUP:01D8
-@@END				  Near	 DGROUP:01EA
-@@ENDCOUNTERLOOP		  Near	 DGROUP:018E
-@@ENDLOOP			  Near	 DGROUP:0178
-@@ENDLOOP			  Near	 DGROUP:01A3
-@@ENDLOOP			  Near	 DGROUP:0377
+@@ADDLASTPART			  Near	 DGROUP:01EA
+@@END				  Near	 DGROUP:01FC
+@@ENDCOUNTERLOOP		  Near	 DGROUP:01A0
+@@ENDLOOP			  Near	 DGROUP:018A
+@@ENDLOOP			  Near	 DGROUP:01B5
+@@ENDLOOP			  Near	 DGROUP:0391
 @@MAINLOOP			  Near	 DGROUP:010B
-@@NEXT				  Near	 DGROUP:015A
-@@NEXT				  Near	 DGROUP:0191
-@@NEXT				  Near	 DGROUP:01E0
-@@NEXT				  Near	 DGROUP:023B
-@@NEXT				  Near	 DGROUP:0252
-@@NEXT				  Near	 DGROUP:02C8
-@@NEXT				  Near	 DGROUP:0365
-@@RETURN			  Near	 DGROUP:0221
-@@SKIPEND			  Near	 DGROUP:02FB
-@@SKIPNEXT			  Near	 DGROUP:02F1
-@@SKIPTEXTLINE			  Near	 DGROUP:030A
-@@STARTCOUNTERLOOP		  Near	 DGROUP:0184
+@@NEXT				  Near	 DGROUP:016C
+@@NEXT				  Near	 DGROUP:01A3
+@@NEXT				  Near	 DGROUP:01F2
+@@NEXT				  Near	 DGROUP:024D
+@@NEXT				  Near	 DGROUP:0264
+@@NEXT				  Near	 DGROUP:02DC
+@@NEXT				  Near	 DGROUP:037F
+@@RETURN			  Near	 DGROUP:0233
+@@SKIPEND			  Near	 DGROUP:0311
+@@SKIPNEXT			  Near	 DGROUP:0307
+@@SKIPTEXTLINE			  Near	 DGROUP:0320
+@@STARTCOUNTERLOOP		  Near	 DGROUP:0196
 @CODE				  Text	 DGROUP
 @CODESIZE			  Text	 0
 @CPU				  Text	 0F0FH
@@ -819,61 +838,61 @@ Symbol Name			  Type	 Value
 @DATA				  Text	 DGROUP
 @DATASIZE			  Text	 0
 @FILENAME			  Text	 FRAME
-@FIRST_MODE			  Near	 DGROUP:0355
-@FOURTH_MODE			  Near	 DGROUP:0361
+@FIRST_MODE			  Near	 DGROUP:036F
+@FOURTH_MODE			  Near	 DGROUP:037B
 @INTERFACE			  Text	 000H
 @MODEL				  Text	 1
-@SECOND_MODE			  Near	 DGROUP:0359
+@SECOND_MODE			  Near	 DGROUP:0373
 @STACK				  Text	 DGROUP
-@THIRD_MODE			  Near	 DGROUP:035D
-@USER_MODE			  Near	 DGROUP:0351
+@THIRD_MODE			  Near	 DGROUP:0377
+@USER_MODE			  Near	 DGROUP:036B
 @WORDSIZE			  Text	 2
-BBACK_WFRONT			  Number 0005
-BORDER_HEIGHT			  Byte	 DGROUP:0032
-BORDER_MODE			  Byte	 DGROUP:0033
-BORDER_WIDTH			  Byte	 DGROUP:0031
-CHECKINPUT			  Near	 DGROUP:01EB
-CLEAN_MONITOR			  Byte	 DGROUP:003E
-CLEARDISPLAY			  Near	 DGROUP:0222
-CURRENT_LINE			  Byte	 DGROUP:0035
-DECCURRENTLINE			  Near	 DGROUP:0213
-DRAWFRAME			  Near	 DGROUP:0276
-ERROR_MESSAGE			  Byte	 DGROUP:0037
+BBACK_WFRONT			  Byte	 DGROUP:0030
+BORDER_HEIGHT			  Byte	 DGROUP:0034
+BORDER_MODE			  Byte	 DGROUP:0035
+BORDER_WIDTH			  Byte	 DGROUP:0033
+CHECKINPUT			  Near	 DGROUP:01FD
+CLEAN_MONITOR			  Byte	 DGROUP:0040
+CLEARDISPLAY			  Near	 DGROUP:0234
+CURRENT_LINE			  Byte	 DGROUP:0037
+DECCURRENTLINE			  Near	 DGROUP:0225
+DRAWFRAME			  Near	 DGROUP:0288
+ERROR_MESSAGE			  Byte	 DGROUP:0039
 EXITPROGRAMM			  Near	 DGROUP:0119
 FIRST_BORDER			  Byte	 DGROUP:0000
 FOURTH_BORDER			  Byte	 DGROUP:001D
-Turbo Assembler	 Version 4.1	    02/13/25 08:39:54	    Page 15
+Turbo Assembler	 Version 4.1	    02/13/25 09:13:19	    Page 15
 Symbol Table
 
 
 
-INCCURRENTLINE			  Near	 DGROUP:0202
-LINE_COUNT			  Byte	 DGROUP:0036
+INCCURRENTLINE			  Near	 DGROUP:0214
+LINE_COUNT			  Byte	 DGROUP:0038
 MAIN				  Near	 DGROUP:0103
 PARSECONSOLE			  Near	 DGROUP:0127
-PARSENUMBER			  Near	 DGROUP:01AB
+PARSENUMBER			  Near	 DGROUP:01BD
 PRINTERRORMESSAGE		  Near	 DGROUP:011E
-PRINTLINE			  Near	 DGROUP:0247
-PRINTSTRING			  Near	 DGROUP:022A
-PRINTTEXTLINEINTOBOX		  Near	 DGROUP:0365
-RETURNTOLOOP			  Near	 DGROUP:02E1
+PRINTLINE			  Near	 DGROUP:0259
+PRINTSTRING			  Near	 DGROUP:023C
+PRINTTEXTLINEINTOBOX		  Near	 DGROUP:037F
+RETURNTOLOOP			  Near	 DGROUP:02F7
 SECOND_BORDER			  Byte	 DGROUP:000A
-SELECTMODE			  Near	 DGROUP:0326
-SETCURRENTCOLOR			  Near	 DGROUP:0322
-SHIFTTONEXTLINE			  Near	 DGROUP:0265
-SKIPSPACES			  Near	 DGROUP:01E0
+SELECTMODE			  Near	 DGROUP:0340
+SETCURRENTCOLOR			  Near	 DGROUP:033A
+SHIFTTONEXTLINE			  Near	 DGROUP:0277
+SKIPSPACES			  Near	 DGROUP:01F2
 START				  Near	 DGROUP:0100
 TABLE_NAME			  Byte	 DGROUP:0026
-TEXTLENGTH			  Near	 DGROUP:018F
-TEXT_POSITION			  Byte	 DGROUP:0034
+TEXTLENGTH			  Near	 DGROUP:01A1
+TEXT_POSITION			  Byte	 DGROUP:0036
 THIRD_BORDER			  Byte	 DGROUP:0014
-USER_BORDER			  Byte	 DGROUP:002F
-WBACK_BFRONT			  Number 0050
-WORDLENGTH			  Near	 DGROUP:0184
+USER_BORDER			  Byte	 DGROUP:0031
+WBACK_BFRONT			  Byte	 DGROUP:002F
+WORDLENGTH			  Near	 DGROUP:0196
 
 Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
-  _DATA				  16  07BF Word	  Public  DATA
-  _TEXT				  16  0379 Word	  Public  CODE
+  _DATA				  16  0681 Word	  Public  DATA
+  _TEXT				  16  0393 Word	  Public  CODE
 
