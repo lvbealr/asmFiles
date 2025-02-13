@@ -1,161 +1,234 @@
+; =====================================================================	;
+; Describe:	Parsing parameters from command-line (PSP x0082h)	;
+; Entry:	None							;
+; Exit:		None							;
+; Destroy:	AX, BX, DI						;
+; =====================================================================	;
+
 parseConsole	proc	
 
-		mov di, 82h 
+		mov di, 82h		; PSP address x0082h - cmd starts
 		
-		call skipSpaces
-		call parseNumber
+		; ############################################# ;
+		; ______________ GET BORDER WIDTH _____________ ;
+		; ############################################# ;
 
-		cmp al, 78d
+		call skipSpaces		; skip spaces
+		call parseNumber	; parse number from cmd
+					; put WIDTH to AL
 
-		ja printErrorMessage
+		cmp al, 78d		; if AL > 78
+					; (check if width is valid)
+		ja printErrorMessage	; print error message
 
-		mov [BORDER_WIDTH], byte ptr al
+		mov [BORDER_WIDTH], byte ptr al ; *BORDER_WIDTH = AL
 		
-		call skipSpaces
-		call parseNumber
+		; ############################################# ;
+		; ______________ GET BORDER HEIGHT ____________ ;
+		; ############################################# ;
 
-		cmp al, 22d
+		call skipSpaces		; skip spaces
+		call parseNumber	; parse number from cmd
+					; put HEIGHT to AL
 
-		ja printErrorMessage
+		cmp al, 22d		; if AL > 22
+					; (check if height is valid)
+		ja printErrorMessage	; print error message
 
-		mov [BORDER_HEIGHT], byte ptr al
+		mov [BORDER_HEIGHT], byte ptr al ; *BORDER_HEIGHT = AL
+			
+		; ############################################# ;
+		; _______________ GET STYLE CODE ______________ ;
+		; ############################################# ;
+
+		call skipSpaces		; skip spaces
+		call parseNumber	; parse number from cmd
+					; put CODE to AL
+
+		mov [BORDER_MODE], byte ptr al ; *BORDER_MODE = AL  
 		
-		call skipSpaces
-		call parseNumber
+		; ############################################# ;
+		; __________________ GET STYLE ________________ ;
+		; ############################################# ;
 
-		mov [BORDER_MODE], byte ptr al
+		; TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
-		call skipSpaces
+		; ############################################# ;
+		; _________________ GET MESSAGE _______________ ;
+		; ############################################# ;
 		
-		xor ax, ax
-		mov ax, di
-
-		mov TEXT_POSITION, byte ptr al
+		call skipSpaces		; skip spaces, go to first symbol
 		
-		push di
-		xor cx, cx
+		xor ax, ax		; AX = 0
+		mov ax, di		; AX = DI
 
-		@@next:
-		call skipSpaces
-		call textLength
+		mov TEXT_POSITION, byte ptr al ; TEXT_POSITION = AL
 		
-		cmp al, BORDER_WIDTH
-		jae printErrorMessage
+		push di			; save DI
+		xor cx, cx		; CX = 0
 
-		inc cl
-
-		mov ax, di
-		mov bx, 80h
+		@@next:			; go to next line
+		call skipSpaces		; skip spaces
+		call textLength		; get string length
+					; put LENGTH to AL
 		
-		sub ax, 128d
+		cmp al, BORDER_WIDTH	; if AL >= BORDER_WIDTH
+					; (check if msg length is valid)
+		jae printErrorMessage	; print error message
+
+		inc cl			; increment count of lines
+
+		mov ax, di		; AX = DX  ; check pos in cmd 
+					; (now DI at start of message)
+		mov bx, 80h		; BX = 80h
+		
+		sub ax, 08h		; AX -= 128 (cmd psp offset: 81-FF, size: 127b)
 	
-		cmp al, byte ptr [bx]
-		jae @@endLoop
+		cmp al, byte ptr [bx]	; if AL >= *BX
+					; (check pos in PSP)
+		jae @@endLoop		; break
 
-		jmp @@next
+		jmp @@next		; get next argument (message also mb)
 
-		@@endLoop:
-		pop di
+		@@endLoop:		
+		pop di			; restore DI
 
-		mov LINE_COUNT, cl
+		mov LINE_COUNT, cl	; LINE_COUNT = CL
 		
-		cmp cl, BORDER_HEIGHT
-		ja printErrorMessage
+		cmp cl, BORDER_HEIGHT	; if CL > BORDER_HEIGHT
+					; (check lines number)
+		ja printErrorMessage	; print error message
 
 		ret
 		endp
+
+; ===================================================================== ;
+; Describe:	Calculate length of 'non-empty word' in command-line	;
+; Entry:	(assumed) DI - start position				;
+; Exit:		(assumed) DI - end   position (first ' ' after word)	;
+; Destroy:	None							;
+; ===================================================================== ;
 
 wordLength	proc
 
-		@@startCounterLoop:
-		cmp byte ptr [di], ' '
+		@@startCounterLoop:	; do while *di != ' '
+		cmp byte ptr [di], ' '	
 		je @@endCounterLoop
 
-		inc di
-		
-		jmp @@startCounterLoop
+		inc di			; increment pos in cmd
 
-		@@endCounterLoop:
+		jmp @@startCounterLoop	; repeat
+
+		@@endCounterLoop:	; return
 
 		ret
 		endp
+; ============================================================= ;
+; Describe: 	Calculates length of message in command-line	;
+; Entry:	(assumed) DI - start position			;
+; Exit:		DI - end of message, AX - count of symbols	;
+; Destroy:	None						;
+; ============================================================= ;
 
 textLength	proc
 
-		mov ax, di
+		mov ax, di		; AX = DI
 		
-		@@next:
+		@@next:			; do while *di != '$'
 		cmp byte ptr [di], '$'
 		je @@endLoop
 
-		inc di
+		inc di			; increment pos in cmd
 	
-		cmp di, 255d
-		jae printErrorMessage
+		cmp di, 255d		; if DI >= 255
+		jae printErrorMessage	; check if end of PSP isn't reached
 
-		jmp @@next
+		jmp @@next		; repeat
+
 		@@endLoop:
 
-		push di
+		push di			; save DI
 		
-		sub di, ax
-		mov ax, di
+		sub di, ax		; DI -= AX (end pos - start pos + 1)
+		mov ax, di		; AX = DI  
 
-		pop di
-		inc di
+		pop di			; restore DI
+		inc di			; DI++ (go to next symbol after msg)
 
 		ret
 		endp
+
+; ============================================= ;
+; Describe:	Get decimal number from a cmd	;
+; Entry:	(assumed) DI - start position	;
+; Exit:		AL - the number			;
+; Destroy:	CX, BX				;
+; ============================================= ;
 
 parseNumber	proc
 		
-		mov bx, di
+		mov bx, di		; BX = DI
 
-		call wordLength
+		call wordLength		; put END POSITION to DI
 
-		sub di, bx
-		mov cx, di
-		mov di, bx
+		sub di, bx		; DI -= BX (end pos - start pos + 1)
+		mov cx, di		; CX = DI (CX - count of digits)
+		mov di, bx		; DI = BX
 
-		cmp cx, 3d
-		jae printErrorMessage
+		cmp cx, 3d		; if CX >= 3
+					; (check count of digits)
+		jae printErrorMessage	; print error message
 
-		cmp cx, 0d
-		je  printErrorMessage
+		cmp cx, 0d		; if CX == 0
+					; (check count of digits)
+		je  printErrorMessage	; print error message
 
-		xor ax, ax
+		xor ax, ax		; AX = 0
 
-		cmp cx, 2d
-		jne @@addLastPart
+		cmp cx, 2d		; if CX != 2
+					; (check count of digits)
+		jne @@addLastPart	; get last part of number
 
-		mov al, byte ptr [di]
-		sub al, '0'
+		mov al, byte ptr [di]	; AL = *DI
+		sub al, '0'		; AL -= '0' (AL = digit value like 0?)
 		
-		mov ah, 10d
-		mul ah
-		mov ah, al
+		mov ah, 10d		; AX = 0A0x
+		mul ah			; AX = AL * AH = 0? * 0A
+		mov ah, al		; AH = AL
+					; now AX = [NUMBER] [NUMBER] (hex)
+					; 	   ^^^^^^^^ ^^^^^^^^
+					;             AH       AL
 
-		inc di
+		inc di			; increment pos in cmd
 		
-		@@addLastPart:
-		mov al, byte ptr [di]
-		sub al, '0'
-		add al, ah
+		@@addLastPart:		
+		mov al, byte ptr [di]	; AL = *DI
+		sub al, '0'		; AL = digit value like 0?
+		add al, ah		; AL += AH
 		
-		inc di
+		inc di			; increment pos in cmd
 		
 		ret
 		endp
 
+; ===================================================================== ;
+; Describe: 	Skip spaces in command-line				;
+; Entry:	(assumed) DI - start position (whitespace symbol)	;
+; Exit:		(assumed) DI - end   position (non-whitespace symbol)	;
+; Destroy:	None							;
+; ===================================================================== ;
+
 skipSpaces	proc
 
-		@@next:
-		cmp byte ptr [di], ' '
-		jne @@end
+		@@next:			; check if next symbol
+					; is non-whitespace
+		cmp byte ptr [di], ' '	; if *di != ' '
+		jne @@end		; break
 
-		inc di
+		inc di			; increment pos in cmd
 
-		jmp @@next
+		jmp @@next		; repeat
+
 		@@end:
 
 		ret

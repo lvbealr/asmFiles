@@ -5,7 +5,7 @@
 	FOURTH_BORDER	db 03h, 5fh, 03h, 03h, 00h, 03h, 03h, 2dh, 03h
 	TABLE_NAME	db 7d,"MEOW <3", '$'
 
-	USER_BORDER 	db 9d, '$'
+	USER_BORDER 	db 09d, '$'
 	BORDER_WIDTH  	db 10d
 	BORDER_HEIGHT 	db 10d
 	BORDER_MODE   	db 01d
