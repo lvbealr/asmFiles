@@ -67,12 +67,28 @@ parseConsole	proc
 		; __________________ GET STYLE ________________ ;
 		; ############################################# ;
 
-		; TODO TODO TODO TODO TODO TODO TODO TODO TODO
+		cmp [BORDER_MODE], 0
+		je GET_STYLE
 
+		GET_STYLE:
+			call skipSpaces		; skip spaces
+				
+			push cx si di
+			mov cx, 9
+			lea si, [di]
+			lea di, USER_BORDER
+			push ds es
+			mov ax, cs
+			mov es, ax
+			rep movsb
+			pop es ds
+			pop di si cx
+			add di, 9	
+		
 		; ############################################# ;
 		; _________________ GET MESSAGE _______________ ;
 		; ############################################# ;
-		
+
 		call skipSpaces		; skip spaces, go to first symbol
 		
 		xor ax, ax		; AX = 0
