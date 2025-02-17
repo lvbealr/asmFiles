@@ -90,13 +90,11 @@ printString	proc
 	pop ax		; restore AX
 
 	@@next:			; write symbol into VIDEOMEM
+        mov al, byte ptr [di]	; AL = *DI
+        mov es:[si], ax		; ES:[SI] = AX (write symbol)
+        add si, 2d		; SI += 2 (shift)
 
-	mov al, byte ptr [di]	; AL = *DI
-	mov es:[si], ax		; ES:[SI] = AX (write symbol)
-	add si, 2d		; SI += 2 (shift)
-
-	inc di			; increment pos in string
-
+        inc di			; increment pos in string
 	loop @@next		; repeat
 
 	ret
@@ -124,8 +122,8 @@ printLine	proc
 
 	@@next:			; write internal symbols
 
-	mov es:[bx], ax		; ES:[BX] = AX (write symbol)
-	add bx, 2d		; BX += 2 (shift)
+        mov es:[bx], ax		; ES:[BX] = AX (write symbol)
+        add bx, 2d		; BX += 2 (shift)
 
 	loop @@next
 
@@ -232,53 +230,53 @@ drawFrame	proc
 	mov si, cx		; SI = CX
 
 	@@next:			; print next line
-	dec dl			; decrease line number
+        dec dl			; decrease line number
 
-	call shiftToNextLine	; shift to next line
-	mov cl, BORDER_WIDTH	; CL = BORDER_WIDTH
+        call shiftToNextLine	; shift to next line
+        mov cl, BORDER_WIDTH	; CL = BORDER_WIDTH
 
-; ---------------------------------------------------------- ;
-	mov ah, BORDER_HEIGHT	; AH = BORDER_HEIGHT
-	sub ah, dl		; AH -= DL (AH -= lineNumber)
+    ; ---------------------------------------------------------- ;
+        mov ah, BORDER_HEIGHT	; AH = BORDER_HEIGHT
+        sub ah, dl		; AH -= DL (AH -= lineNumber)
 
-	cmp ah, CURRENT_LINE	; if AH == CURRENT_LINE
-	je setCurrentColor	; set current color
+        cmp ah, CURRENT_LINE	; if AH == CURRENT_LINE
+        je setCurrentColor	; set current color
 
-	mov ah, WBACK_BFRONT	; AH = WBACK_BFRONT
-	returnToLoop:
-; ---------------------------------------------------------- ;
-	call printLine		; print line
+        mov ah, WBACK_BFRONT	; AH = WBACK_BFRONT
+        returnToLoop:
+    ; ---------------------------------------------------------- ;
+        call printLine		; print line
 
-	mov al, BORDER_HEIGHT	; AL = BORDER_HEIGHT
-	sub al, dl		; AL -= DL (AL -= lineNumber)
+        mov al, BORDER_HEIGHT	; AL = BORDER_HEIGHT
+        sub al, dl		; AL -= DL (AL -= lineNumber)
 
-	cmp al, LINE_COUNT	; if AL > LINE_COUNT
-				; (currLine > LINE_COUNT)
-	ja @@skipTextLine	; skip text line
+        cmp al, LINE_COUNT	; if AL > LINE_COUNT
+                    ; (currLine > LINE_COUNT)
+        ja @@skipTextLine	; skip text line
 
-	@@skipNext:		; skip spaces before string
-	cmp [si], byte ptr ' '	; if *si != ' '
-	jne @@skipEnd		; go to skipEnd
-		inc si
+        @@skipNext:		; skip spaces before string
+        cmp [si], byte ptr ' '	; if *si != ' '
+        jne @@skipEnd		; go to skipEnd
+            inc si
 
-	jmp @@skipNext		; repeat
+        jmp @@skipNext		; repeat
 
-	@@skipEnd:		
+        @@skipEnd:
 
-	push bx			; save BX
+        push bx			; save BX
 
-	xor cx, cx		; CX = 0
-	mov cl, BORDER_WIDTH	; CL = BORDER_WIDTH
-	sub bx, cx		; BX -= CX
-	sub bx, cx		; (get pos to write)
+        xor cx, cx		; CX = 0
+        mov cl, BORDER_WIDTH	; CL = BORDER_WIDTH
+        sub bx, cx		; BX -= CX
+        sub bx, cx		; (get pos to write)
 
-	call printTextLineIntoBox ; print text into box
+        call printTextLineIntoBox ; print text into box
 
-	pop bx			; restore BX
+        pop bx			; restore BX
 
-	@@skipTextLine:
+        @@skipTextLine:
 
-	sub di, 3d		; DI -= 3
+        sub di, 3d		; DI -= 3
 
 	cmp dl, 0		; if DL != 0
 	jne @@next		; go to next

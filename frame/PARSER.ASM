@@ -68,11 +68,10 @@ parseConsole	proc
 		; ############################################# ;
 
 		cmp [BORDER_MODE], 0
-		je GET_STYLE
+		jne @@break
 
-		GET_STYLE:
+		@@getStyle:
 			call skipSpaces		; skip spaces
-				
 			push cx si di
 			mov cx, 9
 			lea si, [di]
@@ -83,8 +82,10 @@ parseConsole	proc
 			rep movsb
 			pop es ds
 			pop di si cx
-			add di, 9	
-		
+			add di, 9
+
+		@@break:
+
 		; ############################################# ;
 		; _________________ GET MESSAGE _______________ ;
 		; ############################################# ;
@@ -114,7 +115,7 @@ parseConsole	proc
 					; (now DI at start of message)
 		mov bx, 80h		; BX = 80h
 		
-		sub ax, 08h		; AX -= 128 (cmd psp offset: 81-FF, size: 127b)
+		sub ax, 80h		; AX -= 128 (cmd psp offset: 81-FF, size: 127b)
 	
 		cmp al, byte ptr [bx]	; if AL >= *BX
 					; (check pos in PSP)
