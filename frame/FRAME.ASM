@@ -4,12 +4,6 @@
 org 100h
 locals @@
 
-; _____ DEFINE _____ ;
-
-;WBACK_BFRONT equ 50h ; black letters on white background
-;BBACK_WFRONT equ 05h ; white letters on black background
-; __________________ ;
-
 ; ################################################################## ;
 
 Start:	jmp main ; jump to main function
@@ -372,6 +366,35 @@ selectMode	proc
 ; ===================================== ;
 
 printTextLineIntoBox	proc
+    push cx si
+    mov cx, si
+
+    @@scanNext:
+        cmp [si], byte ptr '$'
+        je @@endScan
+        inc si
+        jmp @@scanNext
+    @@endScan:
+
+    sub cx, si
+    neg cx
+
+    push ax
+
+    mov al, BORDER_WIDTH
+    add al, BORDER_WIDTH
+    sub al, 2
+    sub al, cl
+    sub al, cl
+    shr al, 1
+
+    add bl, al
+    mov al, bl
+    and al, 1
+    sub bl, al
+
+    pop ax si cx
+
 	@@next:			; check line terminator
 	cmp [si], byte ptr '$'	; if *si == '$'
 	je @@endLoop		; it's end of line
@@ -385,10 +408,10 @@ printTextLineIntoBox	proc
 
 	jmp @@next		; repeat
 
-	@@endLoop:	
+	@@endLoop:
 
 	inc si			; skip terminator '$'
-    
+
 	ret
 			endp
 
