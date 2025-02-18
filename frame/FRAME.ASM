@@ -386,10 +386,13 @@ printTextLineIntoBox	proc
     sub al, cl
     shr al, 1
 
-    add bl, al
-    mov al, bl
+    mov ch, ah
+    mov ah, 0
+    add bx, ax
+    mov ax, bx
     and al, 1
-    sub bl, al
+    mov ah, 0
+    sub bx, ax
 
     pop ax si cx
 

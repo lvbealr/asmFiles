@@ -3,7 +3,7 @@
 	SECOND_BORDER	db "/-\| |\-/", '$'	
 	THIRD_BORDER	db "+-+| |+-+", '$'
 	FOURTH_BORDER	db 03h, 5fh, 03h, 03h, 00h, 03h, 03h, 2dh, 03h
-	TABLE_NAME	db 7d,"MEOW <3", '$'
+	TABLE_NAME	db 6d,"@ded32"
 
 	WBACK_BFRONT	db 02d
 	BBACK_WFRONT	db 02d
